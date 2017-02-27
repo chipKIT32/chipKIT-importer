@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: com.microchip.mplab.nbide.embedded.chipkit/0
+OpenIDE-Module-Implementation-Version: 170224
+OpenIDE-Module-Install: com/microchip/mplab/nbide/embedded/chipkit/Installer.class
+OpenIDE-Module-Localizing-Bundle: com/microchip/mplab/nbide/embedded/chipkit/Bundle.properties
+OpenIDE-Module-Specification-Version: 0.9.8
+Bundle-NativeCode:  com/sun/jna/win32-x86/jnidispatch.dll; processor=x
+ 86;osname=win32, com/sun/jna/win32-x86-64/jnidispatch.dll; processor=
+ x86-64;osname=win32, com/sun/jna/w32ce-arm/jnidispatch.dll; processor
+ =arm;osname=wince,  com/sun/jna/sunos-x86/libjnidispatch.so; processo
+ r=x86;osname=sunos, com/sun/jna/sunos-x86-64/libjnidispatch.so; proce
+ ssor=x86-64;osname=sunos, com/sun/jna/sunos-sparc/libjnidispatch.so; 
+ processor=sparc;osname=sunos, com/sun/jna/sunos-sparcv9/libjnidispatc
+ h.so; processor=sparcv9;osname=sunos,  com/sun/jna/aix-ppc/libjnidisp
+ atch.a; processor=ppc;osname=aix, com/sun/jna/aix-ppc64/libjnidispatc
+ h.a; processor=ppc64;osname=aix,  com/sun/jna/linux-ppc/libjnidispatc
+ h.so; processor=ppc;osname=linux, com/sun/jna/linux-ppc64/libjnidispa
+ tch.so; processor=ppc64;osname=linux, com/sun/jna/linux-x86/libjnidis
+ patch.so; processor=x86;osname=linux, com/sun/jna/linux-x86-64/libjni
+ dispatch.so; processor=x86-64;osname=linux, com/sun/jna/linux-arm/lib
+ jnidispatch.so; processor=arm;osname=linux, com/sun/jna/linux-ia64/li
+ bjnidispatch.so; processor=ia64;osname=linux,  com/sun/jna/freebsd-x8
+ 6/libjnidispatch.so; processor=x86;osname=freebsd, com/sun/jna/freebs
+ d-x86-64/libjnidispatch.so; processor=x86-64;osname=freebsd, com/sun/
+ jna/openbsd-x86/libjnidispatch.so; processor=x86;osname=openbsd, com/
+ sun/jna/openbsd-x86-64/libjnidispatch.so; processor=x86-64;osname=ope
+ nbsd,  com/sun/jna/darwin/libjnidispatch.jnilib; osname=macosx;proces
+ sor=x86;processor=x86-64;processor=ppc 
+
+
