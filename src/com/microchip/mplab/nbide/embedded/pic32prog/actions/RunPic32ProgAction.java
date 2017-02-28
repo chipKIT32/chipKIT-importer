@@ -75,7 +75,7 @@ import org.openide.windows.TopComponent;
         lazy = false,
         displayName = "#CTL_RunPic32ProgAction.name"
 )
-@ActionReference(path = "Toolbars/Build", position = 332)
+@ActionReference(path = "Toolbars/chipKIT", position = 900)
 public final class RunPic32ProgAction extends AbstractAction implements PropertyChangeListener, Presenter.Toolbar {
 
     private static final RequestProcessor RP = new RequestProcessor("RunPic32ProgTask");

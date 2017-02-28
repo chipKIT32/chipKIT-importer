@@ -244,27 +244,27 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
         
         // Create chipKit Core Logical Folder
         Folder chipkitCoreFolder = newProjectDescriptor.getLogicalFolders().addNewFolder(
-                ChipKitProjectImporter.CORE_DIRECTORY_NAME,
-                "chipKIT Core",
-                false,
-                Folder.Kind.SOURCE_LOGICAL_FOLDER
+            ChipKitProjectImporter.CORE_DIRECTORY_NAME,
+            "chipKIT Core",
+            false,
+            Folder.Kind.SOURCE_LOGICAL_FOLDER
         );
         importer.getChipKitCoreFilePaths().forEach(
-                p -> {
-                    if (copyFiles) {
-                        addFileToFolder(chipkitCoreFolder, p, importer.getChipKitCoreDirectoryPath());
-                    } else {
-                        addFileToFolder(chipkitCoreFolder, p, boardConfig.getCoreDirPath(), boardConfig.getVariantDirPath());
-                    }
+            p -> {
+                if (copyFiles) {
+                    addFileToFolder(chipkitCoreFolder, p, importer.getChipKitCoreDirectoryPath());
+                } else {
+                    addFileToFolder(chipkitCoreFolder, p, boardConfig.getCoreDirPath(), boardConfig.getVariantDirPath());
                 }
+            }
         );
 
         // Create chipKit Libraries Logical Folder
         Folder chipkitLibrariesFolder = newProjectDescriptor.getLogicalFolders().addNewFolder(
-                ChipKitProjectImporter.LIBRARIES_DIRECTORY_NAME,
-                "chipKIT Libraries",
-                true,
-                Folder.Kind.SOURCE_LOGICAL_FOLDER
+            ChipKitProjectImporter.LIBRARIES_DIRECTORY_NAME,
+            "chipKIT Libraries",
+            true,
+            Folder.Kind.SOURCE_LOGICAL_FOLDER
         );
         if (copyFiles) {
             importer.getMainLibraryFilePaths().forEach(p -> addFileToFolder(chipkitLibrariesFolder, p, importer.getLibraryDirectoryPath()));
@@ -286,10 +286,10 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
 
         if (!copyFiles) {
             Folder sketchSourceFolder = newProjectDescriptor.getLogicalFolders().addNewFolder(
-                    "sketchSource",
-                    "Sketch Source",
-                    false,
-                    Folder.Kind.IMPORTANT_FILES_FOLDER
+                "sketchSource",
+                "Sketch Source",
+                false,
+                Folder.Kind.IMPORTANT_FILES_FOLDER
             );
             importer.getSourceFilePaths().forEach((p) -> {
                 if (p.toString().endsWith(".ino")) {
@@ -298,16 +298,21 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
             });
 
             Folder generatedFolder = sourceFolder.addNewFolder(
-                    "generated",
-                    "generated",
-                    true,
-                    Folder.Kind.SOURCE_LOGICAL_FOLDER
+                "generated",
+                "generated",
+                true,
+                Folder.Kind.SOURCE_LOGICAL_FOLDER
             );
             importer.getPreprocessedSourceFilePaths().forEach((p) -> {
                 addFileToFolder(generatedFolder, p, importer.getPreprocessedSketchDirectoryPath());
             });
 
-            newProjectDescriptor.getActiveConfiguration().getMakeCustomizationConfiguration().setPreBuildStep(importer.getPreprocessingCommand());
+            String arduinoBuilderCommand = importer.getPreprocessingCommand();
+            
+            // Redirect Arduino Builder output to a log file:
+            arduinoBuilderCommand += " > preprocess.log";
+            
+            newProjectDescriptor.getActiveConfiguration().getMakeCustomizationConfiguration().setPreBuildStep( arduinoBuilderCommand );
             newProjectDescriptor.getActiveConfiguration().getMakeCustomizationConfiguration().setApplyPreBuildStep(true);
         }
 
