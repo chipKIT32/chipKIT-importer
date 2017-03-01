@@ -7,6 +7,7 @@ chipKIT importer plugin for MPLAB X
 Version 0.9.9
 - Moved the Program/Download toolbar controls further right
 - Redirected output from Arduino Builder to a preprocess.log file
+- Removed the JNA and JNA Platform jars from the plugin and added dependencies on the JNA module from MPLAB X IDE v.3.55
 
 Version 0.9.8
 - Modified the source project file chooser to show .ino files. The current implementation allows the user to select either a project directory or an .ino file
