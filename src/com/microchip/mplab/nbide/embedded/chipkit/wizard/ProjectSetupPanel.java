@@ -164,6 +164,7 @@ class ProjectSetupPanel extends JPanel {
         arduinoLocationLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         org.openide.awt.Mnemonics.setLocalizedText(arduinoLocationLabel, org.openide.util.NbBundle.getMessage(ProjectSetupPanel.class, "ProjectSetupPanel.arduinoLocationLabel.text")); // NOI18N
 
+        chipKitBoardCombo.setToolTipText(org.openide.util.NbBundle.getMessage(ProjectSetupPanel.class, "ProjectSetupPanel.chipKitBoardCombo.toolTipText")); // NOI18N
         chipKitBoardCombo.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 chipKitBoardComboItemStateChanged(evt);

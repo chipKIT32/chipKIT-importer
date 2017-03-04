@@ -1,13 +1,13 @@
 # chipKIT Import Plugin for MPLAB X IDE
 This plugin contains an import wizard that can be launched from File->Import->Import chipKIT Project. 
 The wizard will allow you to select a sketch file (*.ino) that was created in Arduino IDE using chipKIT-core in the Arduino Boards Manager. 
-Next, it will conver the sketch into an MPLAB X Makefile project. 
+Next, it will convert the sketch into an MPLAB X Makefile project. 
 With this project you will be able to build and debug the chipKIT sketch in MPLAB X.
 
 A complete set of Help documentation is included. 
 Note that the wizard can import a project in two different ways:  
-1) Retaining links to external source code and libraries that exist in the chipKIT/Arduino environment, or  
-2) Copying all source code and libraries, in order to create a stand-alone MPLAB X project which is logically separate from the original.
+1) Copying all source code and libraries, in order to create a stand-alone MPLAB X project which is logically separate from the original (default mode) or  
+2) Retaining links to external source code and libraries that exist in the chipKIT/Arduino environment,
 
 The chipKIT Import Plugin requires the following software to be installed:  
 - MPLAB X v3.55 or later
@@ -17,6 +17,10 @@ The chipKIT Import Plugin requires the following software to be installed:
 
 
 ### Changelog:
+
+Version 0.9.10
+- Added plugin description
+- Added tooltips to the fields on wizard's first page
 
 Version 0.9.9
 - Moved the Program/Download toolbar controls further right
