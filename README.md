@@ -18,6 +18,9 @@ The chipKIT Import Plugin requires the following software to be installed:
 
 ### Changelog:
 
+Version 0.9.11
+- Set minimum XC32 compiler version to 1.43
+
 Version 0.9.10
 - Added plugin description
 - Added tooltips to the fields on wizard's first page

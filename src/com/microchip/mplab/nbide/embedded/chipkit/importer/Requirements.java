@@ -17,7 +17,7 @@ package com.microchip.mplab.nbide.embedded.chipkit.importer;
 
 public final class Requirements {
     
-    public static final String MINIMUM_XC_TOOLCHAIN_VERSION = "1.43-TC5";
+    public static final String MINIMUM_XC_TOOLCHAIN_VERSION = "1.43";
     public static final String MINIMUM_ARDUINO_VERSION = "1.8.0";
     
     private Requirements() {}
