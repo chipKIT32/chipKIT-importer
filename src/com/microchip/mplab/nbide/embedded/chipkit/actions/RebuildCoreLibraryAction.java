@@ -51,7 +51,7 @@ import org.openide.windows.InputOutput;
 @ActionRegistration(
     iconBase = "com/microchip/mplab/nbide/embedded/chipkit/actions/arduino_16.png",        
     displayName = "#CTL_RebuildCoreLibraryAction",
-    lazy = true
+    lazy = false
 )
 @ActionReference(path="Projects/Actions", position = 100)
 public class RebuildCoreLibraryAction extends AbstractAction implements ContextAwareAction {
