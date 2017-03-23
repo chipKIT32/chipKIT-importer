@@ -33,13 +33,13 @@ public class LanguageToolchainLocator {
 
         Optional<LanguageToolchain> opt = installedCompilers.stream()
             .filter(lt -> lt.getMeta().getID().toLowerCase().equals("xc32"))
-            .filter(lt -> minimumToolchainVersion.compareTo(createVersionFromPath(lt)) <= 0)
-            .max( (LanguageToolchain lt1, LanguageToolchain lt2) -> createVersionFromPath(lt1).compareTo(createVersionFromPath(lt2)) );
+            .filter(lt -> minimumToolchainVersion.compareTo(getVersion(lt)) <= 0)
+            .max( (LanguageToolchain lt1, LanguageToolchain lt2) -> getVersion(lt1).compareTo(getVersion(lt2)) );
         
         return opt;
     }
     
-    private Version createVersionFromPath(LanguageToolchain lt) {
+    private Version getVersion(LanguageToolchain lt) {
         Path p = Paths.get(lt.getDirectory());
         Path versionElement = p.getName(p.getNameCount() - 2);
         String versionString = versionElement.toString();

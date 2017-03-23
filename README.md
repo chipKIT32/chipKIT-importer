@@ -18,6 +18,10 @@ The chipKIT Import Plugin requires the following software to be installed:
 
 ### Changelog:
 
+Version 0.9.12
+- Added logic that saves all open files prior to rebuilding the Core library
+- Fixed a typo in BootloaderPathProvider that caused a NullPointerException for Clicker 2 Board
+
 Version 0.9.11
 - Set minimum XC32 compiler version to 1.43
 

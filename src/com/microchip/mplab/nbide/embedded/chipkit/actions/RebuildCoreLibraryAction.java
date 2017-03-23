@@ -20,6 +20,7 @@ import com.microchip.mplab.nbide.embedded.chipkit.importer.ChipKitProjectImporte
 import static com.microchip.mplab.nbide.embedded.chipkit.importer.ChipKitProjectImporter.CORE_DIRECTORY_NAME;
 import com.microchip.mplab.nbide.embedded.chipkit.importer.GCCToolFinder;
 import com.microchip.mplab.nbide.embedded.chipkit.importer.LibCoreBuilder;
+import com.microchip.mplab.nbide.embedded.makeproject.MakeOptions;
 import com.microchip.mplab.nbide.embedded.makeproject.MakeProject;
 import java.awt.event.ActionEvent;
 import java.nio.file.Files;
@@ -40,6 +41,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 import static javax.swing.Action.NAME;
+import org.openide.LifecycleManager;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
@@ -85,6 +87,11 @@ public class RebuildCoreLibraryAction extends AbstractAction implements ContextA
         @Override        
         public void actionPerformed(ActionEvent e) {            
             RP.post( () -> {
+                
+                if (MakeOptions.getInstance().getSave()) {
+                    LifecycleManager.getDefault().saveAll();
+                }
+                
                 LibCoreBuilder libCoreBuilder = new LibCoreBuilder();
                 InputOutput io = IOProvider.getDefault().getIO ( getValue(NAME).toString(), true );
                 io.setFocusTaken(true);

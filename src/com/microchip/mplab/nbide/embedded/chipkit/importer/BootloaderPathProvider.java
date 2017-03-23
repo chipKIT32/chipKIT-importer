@@ -41,7 +41,7 @@ public class BootloaderPathProvider {
         put("chipkit_WiFire_80MHz", "chipKIT-WiFire-80MHZ.hex");
         put("chipkit_WiFire_AB", "chipKIT-WiFire.hex");
         put("chipkit_WiFire", "chipKIT-WiFire-EF.hex");
-        put("clicker2", "clicker-2.hex");
+        put("clicker2", "clicker-2ge.hex");
         put("cmod", "chipKIT-Cmod.hex");
         put("cui32", "");                                   // X
         put("CUI32stem", "");                               // X
