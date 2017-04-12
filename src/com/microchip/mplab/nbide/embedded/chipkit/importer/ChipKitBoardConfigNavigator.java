@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,8 @@ import java.util.stream.Collectors;
 public class ChipKitBoardConfigNavigator {
     
     private static final Logger LOGGER = Logger.getLogger(ChipKitBoardConfigNavigator.class.getName());
+    
+    public static final List <String> CURRENTLY_UNSUPPORTED_BOARD_IDS = Arrays.asList("clicker2", "cui32", "CUI32stem", "usbono_pic32");
     
     public static final String BOARDS_FILENAME = "boards.txt";
     public static final String PLATFORM_FILENAME = "platform.txt";
@@ -205,7 +208,9 @@ public class ChipKitBoardConfigNavigator {
             if ( !line.startsWith("#") && line.contains(".name") ) {
                 // e.g: cerebot32mx4.name=Cerebot 32MX4
                 String[] pair = line.split("\\.name");
-                ret.put( pair[1].substring(1).trim(), pair[0].trim() );
+                String id = pair[0].trim();
+                if ( CURRENTLY_UNSUPPORTED_BOARD_IDS.contains(id) ) return;
+                ret.put( pair[1].substring(1).trim(), id );
             }
         });
         return ret;
@@ -239,20 +244,13 @@ public class ChipKitBoardConfigNavigator {
         }
     }
     
-    public ChipKitBoardConfig readCompleteBoardConfig( String boardId ) throws IOException {
-        return readCompleteBoardConfig(boardId, getChipKitCorePath(), getChipKitVariantPath(boardId));
-    }
-        
-    public ChipKitBoardConfig readCompleteBoardConfig( String boardId, Path coreDirPath ) throws IOException {
-        return readCompleteBoardConfig(boardId, coreDirPath, getChipKitVariantPath(boardId));
-    }
-    
-    public ChipKitBoardConfig readCompleteBoardConfig( String boardId, Path coreDirPath, Path variantDirPath ) throws IOException {                
+    public ChipKitBoardConfig readCompleteBoardConfig( String boardId, Path coreDirPath, Path variantDirPath, Path ldScriptDirPath ) throws IOException {
         Map <String,String> config = new HashMap<>();
         config.put("build.arch", "PIC32");
         config.put("runtime.ide.version", "10613");
         config.put("build.core.path", coreDirPath.toString() );
         config.put("build.variant.path", variantDirPath != null ? variantDirPath.toString() : "" );
+        config.put("build.ldscript_dir.path", ldScriptDirPath != null ? ldScriptDirPath.toString() : "" );
         config.put("fqbn", getFullyQualifiedBoardName(boardId));
         config.put("packagesRoot", getPackagesRootPath().toString() );
 
@@ -274,6 +272,10 @@ public class ChipKitBoardConfigNavigator {
             }
             config.put( e.getKey(), newValue );
         });
+        
+        String ldScript = config.get("ldscript");
+        String ldScriptDebug = ldScript.substring( 0, ldScript.lastIndexOf(".") ) + "-debug.ld";
+        config.put("ldscript-debug", ldScriptDebug);
         
         return new ChipKitBoardConfig(config);
     }

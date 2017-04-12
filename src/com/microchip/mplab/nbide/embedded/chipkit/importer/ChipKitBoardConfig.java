@@ -36,6 +36,10 @@ public class ChipKitBoardConfig {
     public String getDeviceLinkerScriptFilename() {
         return data.get("ldscript");
     }
+    
+    public String getDeviceDebugLinkerScriptFilename() {
+        return data.get("ldscript-debug");
+    }
 
     public String getCommonLinkerScriptFilename() {
         return data.get("ldcommon");
@@ -102,14 +106,15 @@ public class ChipKitBoardConfig {
         return optionSet;
     }
     
-    public Set <String> getExtraOptionsLD() {
+    public Set <String> getExtraOptionsLD( boolean debug ) {
         String chipkitCoreDirectory = data.get("build.core.path");
         String chipkitVariantDirectory = data.get("build.variant.path");
-        String ldscript = data.get("ldscript");
+        String ldScriptDirectory = data.get("build.ldscript_dir.path");
+        String ldscript = debug ? data.get("ldscript-debug") : data.get("ldscript");
         String ldcommon = data.get("ldcommon");
         Path ldcommonPath = Paths.get( chipkitCoreDirectory, ldcommon );
-        Path ldscriptPath = Paths.get( chipkitCoreDirectory, ldscript );
-        if ( !Files.exists(ldscriptPath) ) {
+        Path ldscriptPath = Paths.get( debug && !ldScriptDirectory.isEmpty() ? ldScriptDirectory : chipkitCoreDirectory, ldscript );
+        if ( !Files.exists(ldscriptPath) && !debug ) {
             ldscriptPath = Paths.get( chipkitVariantDirectory, ldscript );
         }
         Set <String> optionSet = new LinkedHashSet<>();

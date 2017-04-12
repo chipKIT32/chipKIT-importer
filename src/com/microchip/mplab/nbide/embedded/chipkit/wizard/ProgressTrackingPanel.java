@@ -45,8 +45,8 @@ class ProgressTrackingPanel extends JPanel {
         add( createImportInProgressPane(), new GridBagConstraints() );
     }
     
-    void onImportSuccess() {
-        showContents( createImportSuccessfulPane() );
+    void onImportSuccess( boolean multiConfigBoard ) {
+        showContents( createImportSuccessfulPane( multiConfigBoard ) );
     }
     
     // TODO: Display exception
@@ -78,9 +78,14 @@ class ProgressTrackingPanel extends JPanel {
         return p1;
     }
     
-    private JComponent createImportSuccessfulPane() {
-        JLabel infoLabel = new JLabel( NbBundle.getMessage( ProgressTrackingPanel.class, "ProgressTrackingPanel.importSuccessfulMessage" ));
-        return infoLabel;
+    private JComponent createImportSuccessfulPane( boolean multiConfigBoard ) {
+        JLabel textLabel = new JLabel( NbBundle.getMessage( 
+            ProgressTrackingPanel.class, multiConfigBoard ? 
+                "ProgressTrackingPanel.importSuccessfulMessageMultiConf" : 
+                "ProgressTrackingPanel.importSuccessfulMessageSingleConf" 
+        ));
+        textLabel.setPreferredSize( new Dimension(600,400) );
+        return textLabel;
     }
     
     private JComponent createImportFailedPane( Exception cause ) {

@@ -18,6 +18,11 @@ The chipKIT Import Plugin requires the following software to be installed:
 
 ### Changelog:
 
+Version 0.9.13
+- Added special import logic for Lenny, DP32, Pi, and Fubarino Mini that uses custom .ld scripts and creates special "debug" configurations
+- Added some instructions for the user that appear on the last page of the wizard
+- Removed support for "clicker2", "cui32", "CUI32stem" and "usbono_pic32" boards
+
 Version 0.9.12
 - Added logic that saves all open files prior to rebuilding the Core library
 - Fixed a typo in BootloaderPathProvider that caused a NullPointerException for Clicker 2 Board

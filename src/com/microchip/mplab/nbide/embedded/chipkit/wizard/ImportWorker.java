@@ -73,9 +73,13 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
 
     private static final Logger LOGGER = Logger.getLogger(ImportWorker.class.getName());
     
+    private static final String DEFAULT_CONF_NAME = "default";
+    private static final String DEBUG_CONF_NAME = "debug";
+    
     private Exception exception;
     private final LanguageToolchain languageToolchain;
     private final WizardDescriptor wizardDescriptor;
+    private volatile boolean multiConfigBoard;
 
     public ImportWorker(LanguageToolchain languageToolchain, WizardDescriptor wizardDescriptor) {
         this.languageToolchain = languageToolchain;
@@ -102,6 +106,10 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
             t.start();
             return new HashSet<>();
         }
+    }
+    
+    public boolean isMultiConfigBoard() {
+        return multiConfigBoard;
     }
 
     public boolean hasFailed() {
@@ -158,13 +166,20 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
     private Set<FileObject> createProjectFromChipKit() throws IOException, InterruptedException {
         Set<FileObject> projectRootDirectories = new HashSet<FileObject>(1);
         File projectDirectory = initProjectDirectoryFromWizard(projectRootDirectories);
-        MakeConfiguration conf = createMakefileConfiguration(projectDirectory);
-        setupPlatform(conf);
-        setupCompiler(conf);
+        String boardId = (String) wizardDescriptor.getProperty(CHIPKIT_BOARD_ID.key());
+        
+        MakeConfiguration[] confs;
+        MakeConfiguration defaultConf = createDefaultMakefileConfiguration(projectDirectory);
+        if ( ChipKitProjectImporter.CUSTOM_LD_SCRIPT_BOARD_IDS.contains(boardId) ) {
+            MakeConfiguration debugConf = createDebugMakefileConfiguration(projectDirectory);            
+            confs = new MakeConfiguration[]{defaultConf, debugConf};
+        } else {
+            confs = new MakeConfiguration[]{defaultConf};
+        }
+        
         String projectName = (String) wizardDescriptor.getProperty(WizardProperty.PROJECT_NAME.key());
         String makefileName = (String) wizardDescriptor.getProperty(WizardProperty.MAKE_FILENAME.key());
         String hostDir = projectDirectory.getAbsolutePath();
-        MakeConfiguration[] confs = new MakeConfiguration[]{conf};
         MakeProject newProject = MakeProjectGenerator.createProject(projectDirectory, hostDir, projectName, makefileName, confs, null, null, null, true, null);
         importChipKitProjectFiles(newProject);
         setupProjectEncoding(newProject);
@@ -183,14 +198,24 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
         return projectDirectory;
     }
 
-    private MakeConfiguration createMakefileConfiguration(File projectDirectory) {
-        MakeConfiguration conf = new MakeConfiguration(projectDirectory.getPath(), "default", MakeConfiguration.TYPE_APPLICATION);
-        conf.getDevice().setValue((String) wizardDescriptor.getProperty(WizardProperty.DEVICE.key()));
-        conf.getHeader().setValue((String) wizardDescriptor.getProperty(WizardProperty.HEADER.key()));
+    private MakeConfiguration createDefaultMakefileConfiguration(File projectDirectory) {
+        MakeConfiguration conf = new MakeConfiguration(projectDirectory.getPath(), DEFAULT_CONF_NAME, MakeConfiguration.TYPE_APPLICATION);
+        setupMakefileConfiguration(conf);
         return conf;
     }
+    
+    private MakeConfiguration createDebugMakefileConfiguration(File projectDirectory) {
+        MakeConfiguration conf = new MakeConfiguration(projectDirectory.getPath(), DEBUG_CONF_NAME, MakeConfiguration.TYPE_APPLICATION);
+        setupMakefileConfiguration(conf);
+        return conf;
+    }
+    
+    private MakeConfiguration setupMakefileConfiguration(MakeConfiguration conf) {
+        // Device and Header
+        conf.getDevice().setValue((String) wizardDescriptor.getProperty(WizardProperty.DEVICE.key()));
+        conf.getHeader().setValue((String) wizardDescriptor.getProperty(WizardProperty.HEADER.key()));
 
-    private void setupPlatform(MakeConfiguration conf) {
+        // Platform
         if (wizardDescriptor.getProperty(WizardProperty.PLUGINBOARD.key()) instanceof DeviceSupport.PluginBoard) {
             conf.getPluginBoard().setValue(((DeviceSupport.PluginBoard) wizardDescriptor.getProperty(WizardProperty.PLUGINBOARD.key())).getName());
         } else {
@@ -198,12 +223,13 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
         }
         conf.getPlatformTool().setValue((String) wizardDescriptor.getProperty(WizardProperty.PLATFORM_TOOL_META_ID.key()));
         conf.getPlatformToolSN().setValue((String) wizardDescriptor.getProperty(WizardProperty.PLATFORM_TOOL_SERIAL.key()));
-    }
-    
-    private void setupCompiler(MakeConfiguration conf) {
+
+        // Toolchain
         conf.getLanguageToolchain().setMetaID(new StringConfiguration(null, languageToolchain.getMeta().getID()));
         conf.getLanguageToolchain().setDir(new StringConfiguration(null, languageToolchain.getDirectory()));
         conf.getLanguageToolchain().setVersion(new StringConfiguration(null, languageToolchain.getVersion()));
+        
+        return conf;
     }
 
     //  TODO: Refactor this method. It is too long and contains too much business logic.
@@ -227,7 +253,10 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
         BootloaderPathProvider bootloaderPathProvider = new BootloaderPathProvider( (filename) -> {
             File hexFile = InstalledFileLocator.getDefault().locate("bootloaders/" + filename, "com.microchip.mplab.nbide.embedded.chipkit", false);
             return hexFile.toPath();
-        });
+        });        
+        
+        File customLinkerScriptsDir = InstalledFileLocator.getDefault().locate("linker_scripts", "com.microchip.mplab.nbide.embedded.chipkit", false);
+        Path customLdScriptsDirectoryPath = customLinkerScriptsDir.toPath();
 
         ChipKitProjectImporter importer = new ChipKitProjectImporter();
         importer.setCopyingFiles( copyFiles );
@@ -237,11 +266,14 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
         importer.setTargetProjectDirectoryPath( targetProjectDir.toPath() );
         importer.setArduinoBuilderRunner( arduinoBuilderRunner );
         importer.setBootloaderPathProvider( bootloaderPathProvider );
+        importer.setCustomLdScriptsPath( customLdScriptsDirectoryPath );
         importer.execute();
 
+        // This will be used to display either the short "how-to" guide or the longer one:
+        multiConfigBoard = importer.isCustomLdScriptBoard();
+        
         ChipKitBoardConfig boardConfig = importer.getChipKitBoardConfig();
 
-        
         // Create chipKit Core Logical Folder
         Folder chipkitCoreFolder = newProjectDescriptor.getLogicalFolders().addNewFolder(
             ChipKitProjectImporter.CORE_DIRECTORY_NAME,
@@ -307,18 +339,19 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
                 addFileToFolder(generatedFolder, p, importer.getPreprocessedSketchDirectoryPath());
             });
 
-            String arduinoBuilderCommand = importer.getPreprocessingCommand();
+            final String arduinoBuilderCommand = importer.getPreprocessingCommand() + " > preprocess.log";  // Redirecting Arduino Builder output to a log file
             
-            // Redirect Arduino Builder output to a log file:
-            arduinoBuilderCommand += " > preprocess.log";
+            newProjectDescriptor.getConfs().getConfigurtions().forEach( c -> {
+                MakeConfiguration mc = (MakeConfiguration) c;
+                mc.getMakeCustomizationConfiguration().setPreBuildStep( arduinoBuilderCommand );
+                mc.getMakeCustomizationConfiguration().setApplyPreBuildStep(true);
+            });
             
-            newProjectDescriptor.getActiveConfiguration().getMakeCustomizationConfiguration().setPreBuildStep( arduinoBuilderCommand );
-            newProjectDescriptor.getActiveConfiguration().getMakeCustomizationConfiguration().setApplyPreBuildStep(true);
         }
 
         // Add bootloader .hex file: 
         if ( importer.hasBootloaderPath() ) {
-            String loadableItemPath = importer.getBootloaderPath().toString();
+            String loadableItemPath = importer.getProductionBootloaderPath().toString();
             if (PathPanel.getMode() == PathPanel.REL_OR_ABS) {
                 loadableItemPath = CndPathUtilities.toAbsoluteOrRelativePath( newProjectDescriptor.getBaseDirFileObject(), loadableItemPath );
             } else if (PathPanel.getMode() == PathPanel.REL) {
@@ -327,22 +360,15 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
             loadableItemPath = FilePathAdaptor.normalize(loadableItemPath);
             LoadableItem newLoadableItem = new LoadableItem.FileItem( loadableItemPath );
             newProjectDescriptor.addLoadableItem(newLoadableItem);
-        } else {
+        } else if ( !importer.isCustomLdScriptBoard() ) {  // If the board uses a custom .ld script, it is supposed not to use a bootloader
             LOGGER.log(Level.WARNING, "Could not find a bootloader file for device {0}", boardId);
         }
         
         // Set auxiliary configuration options
         Set<String> cppAppendOptionsSet = boardConfig.getExtraOptionsCPP();
-
-        String preprocessorMacros = boardConfig.getCompilerMacros();
-        String ldOptions = String.join(" ", boardConfig.getExtraOptionsLD());
-        String ldAppendOptions = "-L" + ChipKitProjectImporter.CORE_DIRECTORY_NAME + ",-l" + LibCoreBuilder.LIB_CORE_NAME;
-        String cAppendOptions = String.join(" ", boardConfig.getExtraOptionsC());
-        boolean cppExceptions = true;
-        if (cppAppendOptionsSet.contains("-fno-exceptions")) {
-            cppExceptions = false;
-            cppAppendOptionsSet.remove("-fno-exceptions");
-        }
+        
+        boolean cppExceptions = !cppAppendOptionsSet.remove("-fno-exceptions");
+        
         String cppAppendOptions = String.join(" ", cppAppendOptionsSet);
 
         Path projectPath = Paths.get(targetProjectDir.getAbsolutePath());
@@ -363,16 +389,26 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
             }
         });
 
-        setAuxOptionValue(newProjectDescriptor, "C32Global", "common-include-directories", includesBuilder.toString());
-        setAuxOptionValue(newProjectDescriptor, "C32Global", "legacy-libc", "false");
-        setAuxOptionValue(newProjectDescriptor, "C32", "preprocessor-macros", preprocessorMacros);
-        setAuxOptionValue(newProjectDescriptor, "C32CPP", "preprocessor-macros", preprocessorMacros);
-        setAuxOptionValue(newProjectDescriptor, "C32CPP", "exceptions", Boolean.toString(cppExceptions));
-        setAuxOptionValue(newProjectDescriptor, "C32-LD", "oXC32ld-extra-opts", ldOptions);
-        setAuxOptionValue(newProjectDescriptor, "C32-LD", "remove-unused-sections", "true");
-        setAppendixValue(newProjectDescriptor, "C32", cAppendOptions);
-        setAppendixValue(newProjectDescriptor, "C32CPP", cppAppendOptions);
-        setAppendixValue(newProjectDescriptor, "C32-LD", ldAppendOptions);
+        
+        String preprocessorMacros = boardConfig.getCompilerMacros();
+        String ldOptions = String.join( " ", boardConfig.getExtraOptionsLD(false) );
+        String ldDebugOptions = String.join( " ", boardConfig.getExtraOptionsLD(true) );
+        String ldAppendOptions = "-L" + ChipKitProjectImporter.CORE_DIRECTORY_NAME + ",-l" + LibCoreBuilder.LIB_CORE_NAME;
+        String cAppendOptions = String.join(" ", boardConfig.getExtraOptionsC());
+        
+        newProjectDescriptor.getConfs().getConfigurtions().forEach( c-> {
+            MakeConfiguration mc = (MakeConfiguration) c;
+            setAuxOptionValue(mc, "C32Global", "common-include-directories", includesBuilder.toString());
+            setAuxOptionValue(mc, "C32Global", "legacy-libc", "false");
+            setAuxOptionValue(mc, "C32", "preprocessor-macros", preprocessorMacros);
+            setAuxOptionValue(mc, "C32CPP", "preprocessor-macros", preprocessorMacros);
+            setAuxOptionValue(mc, "C32CPP", "exceptions", Boolean.toString(cppExceptions));
+            setAuxOptionValue(mc, "C32-LD", "oXC32ld-extra-opts", c.getName().equals(DEBUG_CONF_NAME) ? ldDebugOptions : ldOptions );
+            setAuxOptionValue(mc, "C32-LD", "remove-unused-sections", "true");
+            setAppendixValue(mc, "C32", cAppendOptions);
+            setAppendixValue(mc, "C32CPP", cppAppendOptions);
+            setAppendixValue(mc, "C32-LD", ldAppendOptions);
+        });
         
         // Create chipKIT properties file:
         Properties chipKitProperties = new Properties();
@@ -424,16 +460,16 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
         }
     }
 
-    private void setAuxOptionValue(MakeConfigurationBook confBook, String confItemId, String propertyKey, String propertyValue) {
-        OptionConfiguration conf = (OptionConfiguration) confBook.getActiveConfiguration().getAuxObject(confItemId);
+    private void setAuxOptionValue(MakeConfiguration makeConf, String confItemId, String propertyKey, String propertyValue) {        
+        OptionConfiguration conf = (OptionConfiguration) makeConf.getAuxObject(confItemId);
         conf.setProperty(propertyKey, propertyValue);
-        conf.markChanged();
+        conf.markChanged();        
     }
 
-    private void setAppendixValue(MakeConfigurationBook confBook, String confItemId, String value) {
-        OptionConfiguration conf = (OptionConfiguration) confBook.getActiveConfiguration().getAuxObject(confItemId);
+    private void setAppendixValue(MakeConfiguration makeConf, String confItemId, String value) {        
+        OptionConfiguration conf = (OptionConfiguration) makeConf.getAuxObject(confItemId);
         conf.setAppendix(value);
-        conf.markChanged();
+        conf.markChanged();        
     }
 
 }

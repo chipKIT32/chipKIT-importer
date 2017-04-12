@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,7 +43,8 @@ public class ChipKitProjectImporter {
     public static final String CORE_DIRECTORY_NAME = "chipKIT-core";    
     public static final String LIBRARIES_DIRECTORY_NAME = "chipKIT-libraries";
     public static final String SOURCE_FILES_DIRECTORY_NAME = "source";
-    public static final String CHIPKIT_PROPERTIES_FILENAME = "chipKIT.properties";
+    public static final String CHIPKIT_PROPERTIES_FILENAME = "chipKIT.properties";    
+    public static final List<String> CUSTOM_LD_SCRIPT_BOARD_IDS = Arrays.asList("fubarino_mini_dev", "fubarino_mini", "lenny", "chipkit_Pi_USB_Serial", "chipkit_Pi", "chipkit_DP32");
     
     private static final Logger LOGGER = Logger.getLogger(ChipKitProjectImporter.class.getName());
     
@@ -65,6 +67,7 @@ public class ChipKitProjectImporter {
     private boolean copyingFiles;
     private Path sourceProjectDirectoryPath;
     private Path targetProjectDirectoryPath;
+    private Path customLdScriptsPath;
     private String boardId;    
     private ChipKitBoardConfigNavigator boardConfigNavigator;    
     private ArduinoBuilderRunner arduinoBuilderRunner;
@@ -75,6 +78,7 @@ public class ChipKitProjectImporter {
     private ChipKitBoardConfig config;
     private Path sourceCoreDirPath;
     private Path sourceVariantDirPath;
+    private boolean customLdScriptBoard;
     
     // Fixed properties:
     private final List <String> mainLibraryNames = new ArrayList<>();    
@@ -127,6 +131,14 @@ public class ChipKitProjectImporter {
     public BootloaderPathProvider getBootloaderPathProvider() {
         return bootloaderPathProvider;
     }
+
+    public void setCustomLdScriptsPath(Path customLdScriptsPath) {
+        this.customLdScriptsPath = customLdScriptsPath;
+    }
+
+    public Path getCustomLdScriptsPath() {
+        return customLdScriptsPath;
+    }
     
     public void setBoardId( String boardId ) {
         this.boardId = boardId;        
@@ -138,6 +150,7 @@ public class ChipKitProjectImporter {
     
     public void execute() throws IOException, InterruptedException {
         // TODO: Add a property check
+        customLdScriptBoard = CUSTOM_LD_SCRIPT_BOARD_IDS.contains( boardId );
         
         sourceCoreDirPath = boardConfigNavigator.getChipKitCorePath();
         LOGGER.log(Level.INFO, "Using core directory: {0}", new Object[] {sourceCoreDirPath} );
@@ -147,7 +160,8 @@ public class ChipKitProjectImporter {
         config = boardConfigNavigator.readCompleteBoardConfig( 
             boardId, 
             copyingFiles ? getChipKitCoreDirectoryPath() : sourceCoreDirPath, 
-            copyingFiles ? getChipKitCoreDirectoryPath() : sourceVariantDirPath 
+            copyingFiles ? getChipKitCoreDirectoryPath() : sourceVariantDirPath, 
+            customLdScriptBoard ? getChipKitCoreDirectoryPath() : null
         );
         
         createProjectDirectoryStructure();
@@ -157,6 +171,8 @@ public class ChipKitProjectImporter {
         if ( copyingFiles ) {
             copyCoreFiles();
             copyLibraries();
+            copyLinkerScripts();
+        } else if ( customLdScriptBoard ) {
             copyLinkerScripts();
         }
         
@@ -242,21 +258,35 @@ public class ChipKitProjectImporter {
             return Files.walk(chipkitCoreDirPath).filter( p -> !Files.isDirectory(p) );
         } else {
             String deviceLinkerScriptFilename = config.getDeviceLinkerScriptFilename();
-            Stream deviceLinkerScriptStream;
+            Path deviceLinkerScriptPath;
+            
             if ( Files.exists( sourceVariantDirPath.resolve( deviceLinkerScriptFilename ) ) ) {
-                deviceLinkerScriptStream = Stream.of( sourceVariantDirPath.resolve( deviceLinkerScriptFilename ) );
+                deviceLinkerScriptPath = sourceVariantDirPath.resolve( deviceLinkerScriptFilename );
             } else {
-                deviceLinkerScriptStream = Stream.of( sourceCoreDirPath.resolve( deviceLinkerScriptFilename ) );
+                deviceLinkerScriptPath = sourceCoreDirPath.resolve( deviceLinkerScriptFilename );
             }
-            return Stream.concat( createSourceCoreFilesStream(), deviceLinkerScriptStream );
+            
+            if ( customLdScriptBoard ) {
+                Path chipkitCoreDirPath = getChipKitCoreDirectoryPath();
+                String debugDeviceLinkerScriptFilename = config.getDeviceDebugLinkerScriptFilename();
+                Path debugDeviceLinkerScriptPath = chipkitCoreDirPath.resolve( debugDeviceLinkerScriptFilename );
+                return Stream.concat( createSourceCoreFilesStream(), Stream.of( deviceLinkerScriptPath, debugDeviceLinkerScriptPath ) );
+            } else {
+                return Stream.concat( createSourceCoreFilesStream(), Stream.of( deviceLinkerScriptPath ) );
+            }
         }
+    }
+
+    public boolean isCustomLdScriptBoard() {
+        return customLdScriptBoard;
     }
     
     public boolean hasBootloaderPath() {
-        return bootloaderPathProvider.getBootloaderPath(boardId) != null;
+        return !customLdScriptBoard && bootloaderPathProvider.getBootloaderPath(boardId) != null;
     }
     
-    public Path getBootloaderPath() {
+    public Path getProductionBootloaderPath() {
+        if ( customLdScriptBoard ) return null;
         Path sourceBootloaderPath = bootloaderPathProvider.getBootloaderPath(boardId);
         return sourceBootloaderPath != null ? getChipKitCoreDirectoryPath().resolve( sourceBootloaderPath.getFileName() ) : null;
     }
@@ -339,26 +369,55 @@ public class ChipKitProjectImporter {
     }
     
     private void copyLinkerScripts() throws IOException {
-        if ( !copyingFiles ) return;
         Path targetDirectoryPath = getChipKitCoreDirectoryPath();
         String commonLinkerScriptFilename = config.getCommonLinkerScriptFilename();
         String deviceLinkerScriptFilename = config.getDeviceLinkerScriptFilename();
-        Files.copy( sourceCoreDirPath.resolve( commonLinkerScriptFilename ), targetDirectoryPath.resolve( commonLinkerScriptFilename ) );
-        if ( Files.exists( sourceVariantDirPath.resolve( deviceLinkerScriptFilename ) ) ) {
+        
+        if ( copyingFiles ) {
+            Files.copy( sourceCoreDirPath.resolve( commonLinkerScriptFilename ), targetDirectoryPath.resolve( commonLinkerScriptFilename ) );
+        }
+        
+        if ( customLdScriptBoard ) {
+            Path boardCustomLdScriptDirPath = customLdScriptsPath.resolve( sourceVariantDirPath.getFileName() );
+            Optional<Path> opt = Files.list(boardCustomLdScriptDirPath).findFirst();
+            if ( opt.isPresent() ) {
+                Path boardCustomLdScriptPath = opt.get();
+                Files.copy( boardCustomLdScriptPath, targetDirectoryPath.resolve( boardCustomLdScriptPath.getFileName() ) );
+            } else {
+                LOGGER.log(Level.WARNING, "No custom .ld script found for board: {0}", boardId);
+            }
+        } 
+        
+        if ( copyingFiles && Files.exists( sourceVariantDirPath.resolve( deviceLinkerScriptFilename ) ) ) {
             Files.copy( sourceVariantDirPath.resolve( deviceLinkerScriptFilename ), targetDirectoryPath.resolve( deviceLinkerScriptFilename ) );
-        } else {
+        } else if ( copyingFiles ) {
             Files.copy( sourceCoreDirPath.resolve( deviceLinkerScriptFilename ), targetDirectoryPath.resolve( deviceLinkerScriptFilename ) );
         }        
     }
     
     private void copyBootloaderFiles() throws IOException {
-        Path sourceBootloaderPath = bootloaderPathProvider.getBootloaderPath(boardId);        
-        if ( sourceBootloaderPath == null ) {
+        // Don't copy bootloader files for boards with custom .ld scripts
+        if ( customLdScriptBoard ) return;
+        
+        // Production bootloader
+        Path srcProdBootloaderPath = bootloaderPathProvider.getBootloaderPath(boardId);        
+        if ( srcProdBootloaderPath == null ) {
             LOGGER.log(Level.WARNING, "No bootloader .hex file found for board: {0}", boardId);
             return;
         }
-        Path targetBootloaderPath = getChipKitCoreDirectoryPath().resolve( sourceBootloaderPath.getFileName() );
-        Files.copy( sourceBootloaderPath, targetBootloaderPath );
+        Files.copy( srcProdBootloaderPath, getChipKitCoreDirectoryPath().resolve( srcProdBootloaderPath.getFileName() ) );
+        
+        // Debug bootloader (if exists)
+        String prodBootloaderFilename = srcProdBootloaderPath.getFileName().toString();
+        String debugBootloaderFilename = convertProdToDebugBootloaderFileName( prodBootloaderFilename );
+        Path srcDebugBootloaderPath = srcProdBootloaderPath.getParent().resolve( debugBootloaderFilename );
+        if ( Files.exists(srcDebugBootloaderPath) ) {
+            Files.copy( srcDebugBootloaderPath, getChipKitCoreDirectoryPath().resolve( srcDebugBootloaderPath.getFileName() ) );
+        }
+    }
+    
+    private String convertProdToDebugBootloaderFileName( String prodBootloaderFileName ) {
+        return prodBootloaderFileName.substring(0, prodBootloaderFileName.length()-".hex".length()) + ".debug.hex";
     }
     
     private void importSketchFiles( Path sketchDirPath ) throws IOException {
@@ -396,7 +455,7 @@ public class ChipKitProjectImporter {
         Files.copy( libCoreBuilder.getLibCorePath(), chipkitCoreDirPath.resolve( LibCoreBuilder.LIB_CORE_FILENAME ) );
         Files.copy( libCoreBuilder.getMakefilePath(), chipkitCoreDirPath.resolve( LibCoreBuilder.MAKEFILE_FILENAME ) );        
         libCoreBuilder.cleanup();
-    }                
+    }                        
     
     private Stream createSourceCoreFilesStream() throws IOException {
         return Stream.concat(

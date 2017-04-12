@@ -64,7 +64,7 @@ public class ProgressTrackingStep implements WizardDescriptor.Panel<WizardDescri
                 if ( importWorker.hasFailed() ) {                    
                     onImportFailed( importWorker.getException() );
                 } else {
-                    onImportSuccess();
+                    onImportSuccess( importWorker.isMultiConfigBoard() );
                 }
             }
         });
@@ -99,14 +99,10 @@ public class ProgressTrackingStep implements WizardDescriptor.Panel<WizardDescri
     //**********************************************
     //************** PRIVATE METHODS ***************
     //**********************************************
-    private void onImportSuccess() {        
-        view.onImportSuccess();        
+    private void onImportSuccess( boolean multiConfigBoard ) {
+        view.onImportSuccess( multiConfigBoard );
         isDone = true;
         fireChangeEvent();
-        // Close the wizard after a moment
-        Timer t = new Timer(1500, (a) -> wizardDescriptor.doFinishClick());
-        t.setRepeats(false);
-        t.start();
     }
     
     private void onImportFailed( Exception ex ) {

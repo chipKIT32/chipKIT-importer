@@ -41,11 +41,11 @@ public class BootloaderPathProvider {
         put("chipkit_WiFire_80MHz", "chipKIT-WiFire-80MHZ.hex");
         put("chipkit_WiFire_AB", "chipKIT-WiFire.hex");
         put("chipkit_WiFire", "chipKIT-WiFire-EF.hex");
-        put("clicker2", "clicker-2ge.hex");
+        put("clicker2", "clicker-2ge.hex");                 // Currently this board is not supported due to a HID bootloader issue
         put("cmod", "chipKIT-Cmod.hex");
         put("cui32", "");                                   // X
         put("CUI32stem", "");                               // X
-        put("fubarino_mini_dev", "");                       
+        put("fubarino_mini_dev", "FUBARINO_MINI_USB.hex");                       
         put("fubarino_mini", "Fubarino-Mini.hex");          
         put("fubarino_sd", "FUBARINO_SD_512K_USB.hex");     
         put("fubarino_sd_seeed", "FUBARINO_SD_512K_USB.hex"); 
