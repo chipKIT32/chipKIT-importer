@@ -8,7 +8,7 @@ and open the template in the editor.
 <helpset version="2.0">
     <title>chipKIT Import Plugin Help</title>
     <maps>
-        <homeID>com.microchip.mplab.nbide.embedded.chipkit.about</homeID>
+        <homeID>uKwyW374LUo_619677</homeID>
         <mapref location="chipkit-map.xml"/>
     </maps>
     <view mergetype="javax.help.AppendMerge">

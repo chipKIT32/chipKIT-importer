@@ -1,0 +1,163 @@
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>Install and Setup</title>
+  </head>
+  <body style="background-color: #FFFFE0;">
+    <table width="99%" cellspacing="0" align="left">
+      <tr>
+        <td>
+          <span>chipKIT Sketch Help</span>
+        </td>
+        <td width="55">
+          <a href="chipKITsketch_1_02.html"><img src="images/prev.gif" alt="Previous" border="0"></a>
+        </td>
+        <td width="55">
+          <a href="chipKITsketch_1_04.html"><img src="images/next.gif" alt="Next" border="0"></a>
+        </td>
+      </tr>
+    </table>
+    <br clear="all">
+    <br>
+    <div style="text-align: left;">
+      <a href="chipKITsketch_1_01.html#">Create a Sketch</a> : Install and Setup</div>
+    <hr align="left">
+    <blockquote>
+      <div style="color: #003366; font-family: Arial; font-size: 12.0pt; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 6.0pt; margin-left: 36pt; margin-right: 0pt; margin-top: 14.0pt; text-align: left; text-indent: -36pt; text-transform: uppercase; vertical-align: baseline;">Install and Setup<a name="627769"></a></div>
+      <div style="color: #003366; font-family: Arial; font-size: 11.0pt; font-style: normal; font-variant: normal; font-weight: bold; margin-bottom: 6.0pt; margin-left: 46.8pt; margin-right: 0pt; margin-top: 9.0pt; text-align: left; text-indent: -46.8pt; text-transform: none; vertical-align: baseline;">Before You Begin<a name="642186"></a></div>
+      <div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 4.0pt; margin-left: 0pt; margin-right: 0pt; margin-top: 4.0pt; text-align: left; text-indent: 0pt; text-transform: none; vertical-align: baseline;">There are many different chipKit-supported boards, PIC32-supported development tools (MPLAB ICD 3, PICkit 3, MPLAB REAL ICE, etc.) that you can use to debug a sketch, however, this document presents an example using the following:<a name="642212"></a></div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">Arduino IDE, v1.8.1 or later<a name="642438"></a></div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">MPLAB X IDE, v3.55 or later<a name="642461"></a></div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">MPLAB XC32 C Compiler, v1.43 or later<a name="650973"></a></div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">chipKIT Max32 board (<a name="658078"></a><dfn style="color: #0000ff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline;"><a href="http://www.microchipdirect.com/ProductSearch.aspx?Keywords=TDGL003">TDGL003</a></dfn>)</div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">MPLAB ICD 3 In-Circuit Debugger (<a name="642490"></a><dfn style="color: #0000ff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline;"><a href="http://www.microchipdirect.com/ProductSearch.aspx?Keywords=DV164035">DV164035</a></dfn>)</div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">USB cable<a name="650878"></a></div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">6-inch modular cable (<a name="650961"></a><dfn style="color: #0000ff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline;">07-00024</dfn>)</div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">SIL Adapter: 02-01988 ASSY, RJ11 Jack to SIL Adapter, SIL connector cable (<a name="642969"></a><dfn style="color: #0000ff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline;">AC164110</dfn>)</div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">9V power supply (<a name="643115"></a><dfn style="color: #0000ff; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-transform: none; vertical-align: baseline;">AC002014</dfn>)</div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 4.0pt; margin-left: 0pt; margin-right: 0pt; margin-top: 4.0pt; text-align: left; text-indent: 0pt; text-transform: none; vertical-align: baseline;"><a name="653887">&nbsp;</a></div>
+      <div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; margin-bottom: 4.0pt; margin-left: 0pt; margin-right: 0pt; margin-top: 4.0pt; text-align: left; text-indent: 0pt; text-transform: none; vertical-align: baseline;">In this section, you are guided through the following steps:<a name="653776"></a></div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;"><a href="chipKITsketch_1_04.html#632709" title="Install and Launch the Arduino IDE" name="653849">Install and Launch the Arduino IDE</a></div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;"><a href="chipKITsketch_1_05.html#633775" title="Add the chipKIT Core Repository to the Boards Manager in Arduino" name="653862">Add the chipKIT Core Repository to the Boards Manager in Arduino</a></div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;"><a href="chipKITsketch_1_06.html#648993" title="Install the Core in Arduino" name="653868">Install the Core in Arduino</a></div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;"><a href="chipKITsketch_1_07.html#650646" title="Select the Board in Arduino" name="653874">Select the Board in Arduino</a></div></td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-left: 0pt;margin-bottom: 2.0pt; margin-right: 9pt; margin-top: 2.0pt; vertical-align: baseline;">
+        <table border="0" cellspacing="0" cellpadding="0" width="99%" summary="">
+          <tr valign="baseline">
+            <td style="width: 9pt"><nobr><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;">•	</div></nobr></td>
+            <td><div style="color: #000000; font-family: Arial; font-size: 10.0pt; font-style: normal; font-variant: normal; font-weight: normal; text-align: left; text-transform: none;"><a href="chipKITsketch_1_08.html#649533" title="Select the COM Port in Arduino" name="653880">Select the COM Port in Arduino</a></div></td>
+          </tr>
+        </table>
+      </div>
+    </blockquote>
+    <hr align="left">
+    <table width="99%" cellspacing="0" align="left">
+      <tr>
+        <td width="55">
+          <a href="chipKITsketch_1_02.html"><img src="images/prev.gif" alt="Previous" border="0"></a>
+        </td>
+        <td width="55">
+          <a href="chipKITsketch_1_04.html"><img src="images/next.gif" alt="Next" border="0"></a>
+        </td>
+        <td style="text-align: right; font-family: Arial; font-size: 10px">
+          <a href="nbdocs://com.microchip.mplab.help/com/microchip/mplab/help/docs/Support.html">Microchip Support</a>
+          <br>
+          <div style="font-size: 9px">
+            Help Updated: 2017-04-13 14:25:13Z</div>
+          <div style="font-size: 9px">Help Page: 3</div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

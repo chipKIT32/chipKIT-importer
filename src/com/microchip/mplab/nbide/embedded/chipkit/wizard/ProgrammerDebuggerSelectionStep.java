@@ -18,6 +18,7 @@ package com.microchip.mplab.nbide.embedded.chipkit.wizard;
 import com.microchip.mplab.nbide.embedded.makeproject.ui.wizards.SelectToolDescriptorPanel;
 import java.awt.Component;
 import javax.swing.event.ChangeEvent;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
 public class ProgrammerDebuggerSelectionStep extends SelectToolDescriptorPanel {
@@ -32,6 +33,11 @@ public class ProgrammerDebuggerSelectionStep extends SelectToolDescriptorPanel {
     @Override
     public void stateChanged(ChangeEvent e) {
         // Overriding the original event handler which changes the name of this page to "..."
+    }
+
+    @Override
+    public HelpCtx getHelp() {
+        return new HelpCtx("56f8deKxLuo_640197");
     }
 
 

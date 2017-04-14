@@ -95,7 +95,7 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
 
     @Override
     public HelpCtx getHelp() {
-        return new HelpCtx("ID_Project_Wizard_Setup");
+        return new HelpCtx("56f8deKxLuo_628366");
     }
 
     @Override

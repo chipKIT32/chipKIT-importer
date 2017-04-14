@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
+
 <!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 <toc version="2.0">
-    <tocitem text="chipKIT Import Plugin">
-        <tocitem text="About chipKIT Import Plugin" target="com.microchip.mplab.nbide.embedded.chipkit.about"/>
+<tocitem text="chipKIT Sketch Importer" expand="false">
+  <tocitem target="uKwyW374LUo_619677" text="Create a Sketch">
+    <tocitem target="uKwyW374LUo_629972" text="Introduction" />
+    <tocitem target="uKwyW374LUo_639976" text="Operating System Support" />
+    <tocitem target="uKwyW374LUo_627769" text="Install and Setup">
+      <tocitem target="uKwyW374LUo_632709" text="Install and Launch the Arduino IDE" />
+      <tocitem target="uKwyW374LUo_633775" text="Add the chipKIT Core Repository to the Boards Manager in Arduino" />
+      <tocitem target="uKwyW374LUo_648993" text="Install the Core in Arduino" />
+      <tocitem target="uKwyW374LUo_650646" text="Select the Board in Arduino" />
+      <tocitem target="uKwyW374LUo_649533" text="Select the COM Port in Arduino" />
     </tocitem>
+    <tocitem target="uKwyW374LUo_628017" text="Create a Sketch in Arduino IDE">
+      <tocitem target="uKwyW374LUo_651433" text="Save a Copy" />
+      <tocitem target="uKwyW374LUo_628071" text="Test the Sketch" />
+    </tocitem>
+  </tocitem>
+  <tocitem target="56f8deKxLuo_619677" text="Import Sketch">
+    <tocitem target="56f8deKxLuo_628241" text="Introduction" />
+    <tocitem target="56f8deKxLuo_632641" text="Install the Plug-In in MPLAB X IDE" />
+    <tocitem target="56f8deKxLuo_628343" text="Set Up the chipKIT MAX32 Board" />
+    <tocitem target="56f8deKxLuo_628392" text="Import the Sketch">
+      <tocitem target="56f8deKxLuo_640005" text="Begin the Import Process" />
+      <tocitem target="56f8deKxLuo_628366" text="Project Setup" />
+      <tocitem target="56f8deKxLuo_640197" text="Select the Tool" />
+      <tocitem target="56f8deKxLuo_655398" text="Import the Project" />
+    </tocitem>
+    <tocitem target="56f8deKxLuo_640401" text="Program the Sketch" />
+    <tocitem target="56f8deKxLuo_650455" text="Debug the Sketch">
+      <tocitem target="56f8deKxLuo_647456" text="Set Breakpoint" />
+    </tocitem>
+    <tocitem target="56f8deKxLuo_658646" text="Editing and Rebuilding the Core" />
+    <tocitem target="56f8deKxLuo_628611" text="Summary" />
+  </tocitem>
+</tocitem>
 </toc>

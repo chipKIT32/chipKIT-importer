@@ -18,6 +18,9 @@ The chipKIT Import Plugin requires the following software to be installed:
 
 ### Changelog:
 
+Version 0.9.14
+- Added user help files
+
 Version 0.9.13
 - Added special import logic for Lenny, DP32, Pi, and Fubarino Mini that uses custom .ld scripts and creates special "debug" configurations
 - Added some instructions for the user that appear on the last page of the wizard

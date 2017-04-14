@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
+
 <!DOCTYPE index PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Index Version 2.0//EN" "http://java.sun.com/products/javahelp/index_2_0.dtd">
 <index version="2.0">
-    <indexitem text="About chipKIT Import Plugin" target="com.microchip.mplab.nbide.embedded.chipkit.about"/>
+  <!--I-->
+  <indexitem target="56f8deKxLuo_628392" text="Import the Sketch" />
+  <indexitem target="uKwyW374LUo_632709" text="Install and Launch Arduino IDE" />
+  <indexitem target="56f8deKxLuo_632641" text="Install the Plug-In" />
+  <indexitem target="uKwyW374LUo_627769" text="Installation and Setup" />
+  <!--O-->
+  <indexitem text="Operating System Support">
+    <indexitem target="uKwyW374LUo_639976" text="(1)Operating System Support" />
+    <indexitem target="uKwyW374LUo_639976" text="(2)Operating System Support" />
+  </indexitem>
 </index>

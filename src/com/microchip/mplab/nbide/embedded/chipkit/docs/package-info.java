@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-@HelpSetRegistration(helpSet = "chipkit-hs.xml", position = 3172)
+@HelpSetRegistration(helpSet = "chipkit-hs.xml", position = 6000)
 package com.microchip.mplab.nbide.embedded.chipkit.docs;
 
 import org.netbeans.api.javahelp.HelpSetRegistration;
