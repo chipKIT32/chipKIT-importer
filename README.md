@@ -18,6 +18,9 @@ The chipKIT Import Plugin requires the following software to be installed:
 
 ### Changelog:
 
+Version 1.0.0
+- First release! (no changes from 0.9.14)
+
 Version 0.9.14
 - Added user help files
 
