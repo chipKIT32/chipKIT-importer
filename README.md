@@ -10,7 +10,7 @@ Note that the wizard can import a project in two different ways:
 2) Retaining links to external source code and libraries that exist in the chipKIT/Arduino environment,
 
 The chipKIT Import Plugin requires the following software to be installed:  
-- MPLAB X v3.55 or later
+- MPLAB X v3.60 or later
 - MPLAB XC32 C/C++ compiler v1.43 or later
 - Arduino IDE v1.81 or later
 - chipKIT-core v1.40 or later
