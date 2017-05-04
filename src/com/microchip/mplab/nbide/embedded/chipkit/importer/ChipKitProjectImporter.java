@@ -44,7 +44,7 @@ public class ChipKitProjectImporter {
     public static final String LIBRARIES_DIRECTORY_NAME = "chipKIT-libraries";
     public static final String SOURCE_FILES_DIRECTORY_NAME = "source";
     public static final String CHIPKIT_PROPERTIES_FILENAME = "chipKIT.properties";    
-    public static final List<String> CUSTOM_LD_SCRIPT_BOARD_IDS = Arrays.asList("fubarino_mini_dev", "fubarino_mini", "lenny", "chipkit_Pi_USB_Serial", "chipkit_Pi", "chipkit_DP32");
+    public static final List<String> CUSTOM_LD_SCRIPT_BOARD_IDS = Arrays.asList("fubarino_mini_dev", "fubarino_mini", "lenny", "chipkit_Pi_USB_Serial", "chipkit_Pi", "chipkit_DP32", "cmod");
     
     private static final Logger LOGGER = Logger.getLogger(ChipKitProjectImporter.class.getName());
     

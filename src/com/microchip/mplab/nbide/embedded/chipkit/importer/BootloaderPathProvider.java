@@ -45,7 +45,7 @@ public class BootloaderPathProvider {
         put("cmod", "chipKIT-Cmod.hex");
         put("cui32", "");                                   // X
         put("CUI32stem", "");                               // X
-        put("fubarino_mini_dev", "FUBARINO_MINI_USB.hex");                       
+        put("fubarino_mini_dev", "Fubarino-Mini_USB_48MHz.hex");                       
         put("fubarino_mini", "Fubarino-Mini.hex");          
         put("fubarino_sd", "FUBARINO_SD_512K_USB.hex");     
         put("fubarino_sd_seeed", "FUBARINO_SD_512K_USB.hex"); 

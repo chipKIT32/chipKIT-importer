@@ -423,12 +423,14 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
 
     private void addFileToFolder(Folder folder, Path filePath, Path... rootPaths) {
         if ( filePath == null ) return;
-        FileObject fileObject = FileUtil.toFileObject(filePath.toFile());
-        if (rootPaths != null) {
+        FileObject fileObject = FileUtil.toFileObject(filePath.toFile());        
+        Path projectRootPath = Paths.get( folder.getConfigurationDescriptor().getBaseDir() );
+        if (rootPaths != null && rootPaths.length > 0) {
             for (Path rootPath : rootPaths) {
                 if (!filePath.startsWith(rootPath)) {
                     continue;
                 }
+                // Create subdirectories if necessary:
                 Path relativePath = rootPath.relativize(filePath);
                 if (relativePath.getNameCount() > 1) {
                     for (int i = 0; i < relativePath.getNameCount() - 1; i++) {
@@ -448,9 +450,14 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
                     break;
                 }
             }
+            if ( filePath.startsWith(projectRootPath) ) {
+                folder.addItem( new Item(fileObject, projectRootPath.relativize(filePath).toString() ) );
+            } else {
+                folder.addItem( new Item(fileObject, filePath.toString()) );
+            }
+        } else {
+            folder.addItem( new Item(fileObject, filePath.toString()) );
         }
-        Item logicalItem = new Item(fileObject, filePath.toString());
-        folder.addItem(logicalItem);
     }
 
     private void setupProjectEncoding(MakeProject newProject) {

@@ -18,6 +18,11 @@ The chipKIT Import Plugin requires the following software to be installed:
 
 ### Changelog:
 
+Version 1.0.1
+- Fixed [issue #15](https://github.com/chipKIT32/chipKIT-importer/issues/15): "Importer doesn't use correct bootloader image for Fubarino Mini"
+- Fixed [issue #18](https://github.com/chipKIT32/chipKIT-importer/issues/18): "Update support for chipKIT Cmod"
+- Fixed [issue #19](https://github.com/chipKIT32/chipKIT-importer/issues/19): "Created project uses absolute paths instead of relative ones"
+
 Version 1.0.0
 - First release! (no changes from 0.9.14)
 
