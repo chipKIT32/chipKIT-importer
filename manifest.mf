@@ -4,4 +4,4 @@ OpenIDE-Module: com.microchip.mplab.nbide.embedded.chipkit/1
 OpenIDE-Module-Implementation-Version: 170504
 OpenIDE-Module-Install: com/microchip/mplab/nbide/embedded/chipkit/Installer.class
 OpenIDE-Module-Localizing-Bundle: com/microchip/mplab/nbide/embedded/chipkit/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0.1
+OpenIDE-Module-Specification-Version: 1.0.2
