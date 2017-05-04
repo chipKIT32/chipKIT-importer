@@ -17,6 +17,8 @@ The chipKIT Import Plugin requires the following software to be installed:
 
 
 ### Changelog:
+Version 1.0.2
+- Same as 1.0.1 - created to align versioning with MPLAB X IDE plugin repository
 
 Version 1.0.1
 - Fixed [issue #15](https://github.com/chipKIT32/chipKIT-importer/issues/15): "Importer doesn't use correct bootloader image for Fubarino Mini"
