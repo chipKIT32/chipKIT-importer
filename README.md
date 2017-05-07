@@ -29,7 +29,7 @@ After adding the platform to your development environment, the last thing to do 
 
 At this point, you should be able to build the Plugin just like any other project in NetBeans (Select _Run_ -> _Build Project_ in the main menu or click the button with a hammer icon in the toolbar).
 
-### Changelog:
+## Changelog:
 Version 1.0.2
 - Same as 1.0.1 - created to align versioning with MPLAB X IDE plugin repository
 
