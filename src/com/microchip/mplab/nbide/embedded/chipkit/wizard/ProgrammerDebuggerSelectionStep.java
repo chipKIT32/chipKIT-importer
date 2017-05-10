@@ -33,6 +33,7 @@ public class ProgrammerDebuggerSelectionStep extends SelectToolDescriptorPanel {
     @Override
     public void stateChanged(ChangeEvent e) {
         // Overriding the original event handler which changes the name of this page to "..."
+        fireChangeEvent();
     }
 
     @Override

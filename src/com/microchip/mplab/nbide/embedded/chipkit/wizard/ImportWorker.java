@@ -423,7 +423,7 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
 
     private void addFileToFolder(Folder folder, Path filePath, Path... rootPaths) {
         if ( filePath == null ) return;
-        FileObject fileObject = FileUtil.toFileObject(filePath.toFile());        
+        FileObject fileObject = FileUtil.toFileObject(filePath.toFile());
         Path projectRootPath = Paths.get( folder.getConfigurationDescriptor().getBaseDir() );
         if (rootPaths != null && rootPaths.length > 0) {
             for (Path rootPath : rootPaths) {
@@ -451,7 +451,8 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
                 }
             }
             if ( filePath.startsWith(projectRootPath) ) {
-                folder.addItem( new Item(fileObject, projectRootPath.relativize(filePath).toString() ) );
+                String relativePath = FileUtil.getRelativePath( FileUtil.toFileObject(projectRootPath.toFile()), fileObject );
+                folder.addItem( new Item(fileObject, relativePath) );
             } else {
                 folder.addItem( new Item(fileObject, filePath.toString()) );
             }
