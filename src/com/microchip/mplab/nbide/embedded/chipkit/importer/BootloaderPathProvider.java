@@ -30,10 +30,10 @@ public class BootloaderPathProvider {
         put("cerebot_mx3ck", "Cerebot-MX3cK.hex");
         put("cerebot_mx4ck", "Cerebot-MX4cK.hex");
         put("cerebot_mx7ck", "Cerebot-MX7cK.hex");
-        put("chipkit_DP32", "chipKIT-DP32.hex");
+        put("chipkit_DP32", "chipKIT-DP32.hex");                    // Not used as the board has a special .ld script
         put("chipkit_mx3", "Cerebot-MX3cK.hex");
-        put("chipkit_Pi", "chipKIT_Pi.hex");
-        put("chipkit_Pi_USB_Serial", "chipKIT-PI-USB.hex"); 
+        put("chipkit_Pi", "chipKIT_Pi.hex");                        // Not used as the board has a special .ld script
+        put("chipkit_Pi_USB_Serial", "chipKIT-PI-USB.hex");         // Not used as the board has a special .ld script
         put("chipkit_pro_mx4", "Cerebot-32MX4-USB.hex");
         put("chipkit_pro_mx7", "Cerebot-32MX7-USB.hex");
         put("chipkit_uc32", "chipKIT-uC32.hex");
@@ -41,16 +41,16 @@ public class BootloaderPathProvider {
         put("chipkit_WiFire_80MHz", "chipKIT-WiFire-80MHZ.hex");
         put("chipkit_WiFire_AB", "chipKIT-WiFire.hex");
         put("chipkit_WiFire", "chipKIT-WiFire-EF.hex");
-        put("clicker2", "clicker-2ge.hex");                 // Currently this board is not supported due to a HID bootloader issue
-        put("cmod", "chipKIT-Cmod.hex");
-        put("cui32", "");                                   // X
-        put("CUI32stem", "");                               // X
-        put("fubarino_mini_dev", "Fubarino-Mini_USB_48MHz.hex");                       
-        put("fubarino_mini", "Fubarino-Mini.hex");          
+        put("clicker2", "clicker-2ge.hex");                         // Currently this board is not supported due to a HID bootloader issue
+        put("cmod", "chipKIT-Cmod.hex");                            // Not used as the board has a special .ld script
+        put("cui32", "");                                           // Unavailable
+        put("CUI32stem", "");                                       // Unavailable
+        put("fubarino_mini_dev", "Fubarino-Mini_USB_48MHz.hex");    // Not used as the board has a special .ld script
+        put("fubarino_mini", "Fubarino-Mini_USB_48MHz.hex");        // Not used as the board has a special .ld script    
         put("fubarino_sd", "FUBARINO_SD_512K_USB.hex");     
         put("fubarino_sd_seeed", "FUBARINO_SD_512K_USB.hex"); 
         put("Fubarino_SDZ", "Fubarino_SDZ_UART.hex");
-        put("lenny", "MAJENKO_LENNY_40MHZ.hex");
+        put("lenny", "MAJENKO_LENNY_40MHZ.hex");                    // Not used as the board has a special .ld script
         put("mega_pic32", "chipKIT-Max32.hex");
         put("mega_usb_pic32", "chipKIT-Max32.hex");
         put("Olimex_Pinguino32", "Olimex_PIC32_Pinguino.hex"); 

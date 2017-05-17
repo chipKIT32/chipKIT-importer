@@ -52,6 +52,7 @@ import javax.swing.JTextField;
 import static com.microchip.mplab.nbide.embedded.makeproject.api.wizards.WizardProperty.*;
 import static com.microchip.mplab.nbide.embedded.chipkit.wizard.ChipKitImportWizardProperty.*;
 import static com.microchip.mplab.nbide.embedded.chipkit.importer.Requirements.MINIMUM_ARDUINO_VERSION;
+import com.microchip.mplab.nbide.embedded.chipkit.utils.ArduinoProjectFileFilter;
 import com.microchip.mplab.nbide.embedded.makeproject.ui.wizards.WizardProjectConfiguration;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
@@ -369,7 +370,7 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
     }
 
     void sourceProjectLocationBrowseButtonActionPerformed(ActionEvent evt) {
-        showDirectoryChooser(view.sourceProjectLocationField, "DLG_SourceProjectLocation");
+        showDirectoryChooser( view.sourceProjectLocationField, "DLG_SourceProjectLocation", new ArduinoProjectFileFilter() );
         String projectDir = readLocationStringFromField( view.sourceProjectLocationField );
         if (projectDir != null && !projectDir.isEmpty()) {
             view.projectNameField.setText(Paths.get(projectDir).getFileName().toString());
@@ -379,19 +380,19 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
     }
 
     void targetProjectLocationBrowseButtonActionPerformed(ActionEvent evt) {
-        showDirectoryChooser(view.targetProjectLocationField, "DLG_TargetProjectLocation");
+        showDirectoryChooser( view.targetProjectLocationField, "DLG_TargetProjectLocation" );
         setTargetProjectDirectoryField();
     }
 
     void arduinoLocationBrowseButtonActionPerformed(ActionEvent evt) {
-        File arduinoDir = showDirectoryChooser(view.arduinoLocationField, "DLG_ArduinoDirectory");
+        File arduinoDir = showDirectoryChooser( view.arduinoLocationField, "DLG_ArduinoDirectory" );
         if ( arduinoDir != null ) {
             fireChangeEvent();
         }
     }
 
     void chipkitCoreLocationBrowseButtonActionPerformed(ActionEvent evt) {
-        showDirectoryChooser(view.chipkitCoreLocationField, "DLG_ChipKitCoreDirectory");
+        showDirectoryChooser( view.chipkitCoreLocationField, "DLG_ChipKitCoreDirectory" );
         onChipKitCoreLocationChanged();
     }
     
@@ -465,35 +466,18 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
     }
     
     private File showDirectoryChooser(JTextField pathField, String dialogTitleKey) {
-        JFileChooser chooser = createSourceProjectFileChooser( readLocationStringFromField(pathField) );
-        chooser.setDialogTitle( NbBundle.getMessage(ProjectSetupPanel.class, dialogTitleKey) );
-        if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(view)) { //NOI18N
-            File selectedFile = chooser.getSelectedFile();
-            File projectDir = selectedFile.isDirectory() ? selectedFile : selectedFile.getParentFile();
-            pathField.setText(projectDir.getAbsolutePath());
-            return projectDir;
-        }
-        return null;
+        return showDirectoryChooser(pathField, dialogTitleKey, null);
     }
-
-    private JFileChooser createSourceProjectFileChooser(String currentDir) {
+    
+    private File showDirectoryChooser(JTextField pathField, String dialogTitleKey, FileFilter fileFilter) {
+        String startDir = readLocationStringFromField(pathField);
+        
         JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(null);
         chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        chooser.setFileFilter( new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return f.isDirectory() || f.getName().toLowerCase().endsWith(".ino");
-            }
-
-            @Override
-            public String getDescription() {
-                // TODO: Move file type name to Bundle
-                return "Arduino Project Files";
-            }
-        });
-        if (currentDir.length() > 0) {
-            File f = new File(currentDir);
+        chooser.setFileFilter( fileFilter );
+        if (startDir.length() > 0) {
+            File f = new File(startDir);
             if (f.exists()) {
                 if (f.isFile()) {
                     chooser.setCurrentDirectory(f.getParentFile());
@@ -507,7 +491,15 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
                 chooser.setCurrentDirectory(f);
             }
         }
-        return chooser;
+        
+        chooser.setDialogTitle( NbBundle.getMessage(ProjectSetupPanel.class, dialogTitleKey) );
+        if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(view)) { //NOI18N
+            File selectedFile = chooser.getSelectedFile();
+            File selectedDir = selectedFile.isDirectory() ? selectedFile : selectedFile.getParentFile();
+            pathField.setText(selectedDir.getAbsolutePath());
+            return selectedDir;
+        }
+        return null;
     }
 
     private boolean validatePathLength(File projFolder) {
