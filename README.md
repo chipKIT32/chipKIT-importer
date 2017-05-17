@@ -30,6 +30,10 @@ After adding the platform to your development environment, the last thing to do 
 At this point, you should be able to build the Plugin just like any other project in NetBeans (Select _Run_ -> _Build Project_ in the main menu or click the button with a hammer icon in the toolbar).
 
 ## Changelog:
+Version 1.0.4
+- Fixed [issue #23](https://github.com/chipKIT32/chipKIT-importer/issues/23): "Wizard looks for .ino files when selecting Arduino IDE"
+- Fixed (again) [issue #15](https://github.com/chipKIT32/chipKIT-importer/issues/15): "Importer doesn't use correct bootloader image for Fubarino Mini" 
+
 Version 1.0.3
 - Temporarily added JNA and JNA Platform jars to the plugin module
 - Fixed an bug related to slash directions in relative paths on Windows
