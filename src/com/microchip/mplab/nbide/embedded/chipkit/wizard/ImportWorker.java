@@ -391,8 +391,8 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
 
         
         String preprocessorMacros = boardConfig.getCompilerMacros();
-        String ldOptions = String.join( " ", boardConfig.getExtraOptionsLD(false) );
-        String ldDebugOptions = String.join( " ", boardConfig.getExtraOptionsLD(true) );
+        String ldOptions = String.join( " ", boardConfig.getExtraOptionsLD(false, copyFiles) );
+        String ldDebugOptions = String.join( " ", boardConfig.getExtraOptionsLD(true, copyFiles) );
         String ldAppendOptions = "-L" + ChipKitProjectImporter.CORE_DIRECTORY_NAME + ",-l" + LibCoreBuilder.LIB_CORE_NAME;
         String cAppendOptions = String.join(" ", boardConfig.getExtraOptionsC());
         

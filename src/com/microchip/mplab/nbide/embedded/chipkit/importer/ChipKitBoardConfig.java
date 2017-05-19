@@ -106,24 +106,29 @@ public class ChipKitBoardConfig {
         return optionSet;
     }
     
-    public Set <String> getExtraOptionsLD( boolean debug ) {
+    public Set <String> getExtraOptionsLD( boolean debug, boolean coreCopied ) {
         String chipkitCoreDirectory = data.get("build.core.path");
         String chipkitVariantDirectory = data.get("build.variant.path");
         String ldScriptDirectory = data.get("build.ldscript_dir.path");
         String ldscript = debug ? data.get("ldscript-debug") : data.get("ldscript");
         String ldcommon = data.get("ldcommon");
-        Path ldcommonPath = Paths.get( chipkitCoreDirectory, ldcommon );
-        Path ldscriptPath = Paths.get( debug && !ldScriptDirectory.isEmpty() ? ldScriptDirectory : chipkitCoreDirectory, ldscript );
-        if ( !Files.exists(ldscriptPath) && !debug ) {
-            ldscriptPath = Paths.get( chipkitVariantDirectory, ldscript );
-        }
         Set <String> optionSet = new LinkedHashSet<>();
         parseOptions( optionSet, data.get("compiler.c.elf.flags") );
         removeRedundantCompilerOptions(optionSet);
         removeRedundantLinkerOptions(optionSet);
         optionSet.add("-mnewlib-libc");
-        optionSet.add("-T\"" + ldscriptPath.toString() + "\"");
-        optionSet.add("-T\"" + ldcommonPath.toString() + "\"");
+        if ( coreCopied ) {
+            optionSet.add("-T\"" + ldscript + "\"");
+            optionSet.add("-T\"" + ldcommon + "\"");
+        } else {
+            Path ldcommonPath = Paths.get( chipkitCoreDirectory, ldcommon );
+            Path ldscriptPath = Paths.get( debug && !ldScriptDirectory.isEmpty() ? ldScriptDirectory : chipkitCoreDirectory, ldscript );
+            if ( !Files.exists(ldscriptPath) && !debug ) {
+                ldscriptPath = Paths.get( chipkitVariantDirectory, ldscript );
+            }
+            optionSet.add("-T\"" + ldscriptPath.toString() + "\"");
+            optionSet.add("-T\"" + ldcommonPath.toString() + "\"");
+        }
         return optionSet;
     }
     
