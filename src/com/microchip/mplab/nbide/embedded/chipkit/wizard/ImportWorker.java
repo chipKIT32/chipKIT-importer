@@ -76,6 +76,8 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
     private static final String DEFAULT_CONF_NAME = "default";
     private static final String DEBUG_CONF_NAME = "debug";
     
+    private static final String DEFAULT_OPTIMIZATION_OPTION = "-O1";
+    
     private Exception exception;
     private final LanguageToolchain languageToolchain;
     private final WizardDescriptor wizardDescriptor;
@@ -401,7 +403,9 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
             setAuxOptionValue(mc, "C32Global", "common-include-directories", includesBuilder.toString());
             setAuxOptionValue(mc, "C32Global", "legacy-libc", "false");
             setAuxOptionValue(mc, "C32", "preprocessor-macros", preprocessorMacros);
+            setAuxOptionValue(mc, "C32", "optimization-level", DEFAULT_OPTIMIZATION_OPTION );
             setAuxOptionValue(mc, "C32CPP", "preprocessor-macros", preprocessorMacros);
+            setAuxOptionValue(mc, "C32CPP", "optimization-level", DEFAULT_OPTIMIZATION_OPTION );
             setAuxOptionValue(mc, "C32CPP", "exceptions", Boolean.toString(cppExceptions));
             setAuxOptionValue(mc, "C32-LD", "oXC32ld-extra-opts", c.getName().equals(DEBUG_CONF_NAME) ? ldDebugOptions : ldOptions );
             setAuxOptionValue(mc, "C32-LD", "remove-unused-sections", "true");
