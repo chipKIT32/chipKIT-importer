@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 AutoUpdate-Show-In-Client: true
 OpenIDE-Module: com.microchip.mplab.nbide.embedded.chipkit/1
-OpenIDE-Module-Implementation-Version: 170517
+OpenIDE-Module-Implementation-Version: 170610
 OpenIDE-Module-Install: com/microchip/mplab/nbide/embedded/chipkit/Installer.class
 OpenIDE-Module-Localizing-Bundle: com/microchip/mplab/nbide/embedded/chipkit/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0.4
+OpenIDE-Module-Specification-Version: 1.0.5
 Bundle-NativeCode:  com/sun/jna/win32-x86/jnidispatch.dll; processor=x
  86;osname=win32, com/sun/jna/win32-x86-64/jnidispatch.dll; processor=
  x86-64;osname=win32, com/sun/jna/w32ce-arm/jnidispatch.dll; processor

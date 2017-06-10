@@ -30,6 +30,10 @@ After adding the platform to your development environment, the last thing to do 
 At this point, you should be able to build the Plugin just like any other project in NetBeans (Select _Run_ -> _Build Project_ in the main menu or click the button with a hammer icon in the toolbar).
 
 ## Changelog:
+Version 1.0.5
+- Fixed [issue #24](https://github.com/chipKIT32/chipKIT-importer/issues/24): "Need to default to -O2"
+- Fixed [issue #19](https://github.com/chipKIT32/chipKIT-importer/issues/19): "Created project uses absolute paths instead of relative ones"
+
 Version 1.0.4
 - Fixed [issue #23](https://github.com/chipKIT32/chipKIT-importer/issues/23): "Wizard looks for .ino files when selecting Arduino IDE"
 - Fixed (again) [issue #15](https://github.com/chipKIT32/chipKIT-importer/issues/15): "Importer doesn't use correct bootloader image for Fubarino Mini" 
