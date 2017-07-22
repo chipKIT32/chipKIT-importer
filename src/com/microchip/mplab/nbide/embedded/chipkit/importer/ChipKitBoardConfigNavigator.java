@@ -49,8 +49,13 @@ public class ChipKitBoardConfigNavigator {
     
     public static List<Path> findChipKitHardwareDirectories( ArduinoConfig arduinoPathResolver ) throws IOException {
         
-        final Path settingsPath = arduinoPathResolver.getSettingsPath();
+        Path settingsPath = arduinoPathResolver.getSettingsPath();
                         
+        if ( settingsPath == null ) {
+            LOGGER.severe( "Failed to find the Arduino settings directory!" );
+            throw new FileNotFoundException("Failed to find the Arduino settings directory!");
+        }
+        
         // Find all paths containing a "platform.txt" file
         LOGGER.log(Level.INFO, "Searching for platform files in {0}", settingsPath);
         FileFinder finder = new FileFinder(PLATFORM_FILENAME);
@@ -65,8 +70,8 @@ public class ChipKitBoardConfigNavigator {
         if ( chipkitPlatformPaths.size() > 0 ) {
             LOGGER.log(Level.INFO, "Found {0} platform path(s): {1}", new Object[]{chipkitPlatformPaths.size(), chipkitPlatformPaths});
         } else {
-            LOGGER.severe("Failed to find any chipKIT platform file!");
-            throw new FileNotFoundException("Failed to find any chipKIT platform file!");
+            LOGGER.severe("Failed to find chipKIT platform files!");
+            throw new FileNotFoundException("Failed to find chipKIT platform files!");
         }
 
         return chipkitPlatformPaths;
@@ -122,6 +127,9 @@ public class ChipKitBoardConfigNavigator {
         // FQBN arduino:avr:nano - [vendor folder name]:[architecture folder name]:[boardId].
         // TODO: Implement proper Vendor/Architecture resolution
         int chipkitIndex = findChipKitPathIndex(chipKitHardwarePath);
+        if ( chipkitIndex == -1 ) {
+            throw new RuntimeException("Failed to find chipKIT hardware directory!");
+        }
         String chipkitCoreName = chipKitHardwarePath.getName(chipkitIndex).toString();
         return chipkitCoreName + ":pic32:" + boardId;
     }
