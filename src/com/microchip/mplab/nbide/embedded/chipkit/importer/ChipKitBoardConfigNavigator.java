@@ -128,7 +128,7 @@ public class ChipKitBoardConfigNavigator {
         // TODO: Implement proper Vendor/Architecture resolution
         int chipkitIndex = findChipKitPathIndex(chipKitHardwarePath);
         if ( chipkitIndex == -1 ) {
-            throw new RuntimeException("Failed to find chipKIT hardware directory!");
+            throw new RuntimeException("Failed to find chipKIT hardware directory in " + chipKitHardwarePath);
         }
         String chipkitCoreName = chipKitHardwarePath.getName(chipkitIndex).toString();
         return chipkitCoreName + ":pic32:" + boardId;
@@ -255,7 +255,7 @@ public class ChipKitBoardConfigNavigator {
     public ChipKitBoardConfig readCompleteBoardConfig( String boardId, Path coreDirPath, Path variantDirPath, Path ldScriptDirPath ) throws IOException {
         Map <String,String> config = new HashMap<>();
         config.put("build.arch", "PIC32");
-        config.put("runtime.ide.version", "10613");
+        config.put("runtime.ide.version", "10802");
         config.put("build.core.path", coreDirPath.toString() );
         config.put("build.variant.path", variantDirPath != null ? variantDirPath.toString() : "" );
         config.put("build.ldscript_dir.path", ldScriptDirPath != null ? ldScriptDirPath.toString() : "" );
