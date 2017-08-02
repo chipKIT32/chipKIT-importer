@@ -65,6 +65,7 @@ public class BootloaderPathProvider {
         put("uno_pmod", "chipKIT-zUno.hex");                
         put("usbono_pic32", "");                            // X
         put("PONTECH_NoFire", "chipKIT-WiFire-80MHZ.hex");  
+        put("flipnclickmz", "MIKROE_FLIPNCLICK_MZ.hex");  
     }};
     
     private final Function<String,Path> hexFileLocator;    
