@@ -33,6 +33,7 @@ At this point, you should be able to build the Plugin just like any other projec
 Version 1.0.6
 - Fixed [issue #26](https://github.com/chipKIT32/chipKIT-importer/issues/26): "chipkit plugin java exception"
 - Fixed [issue #27](https://github.com/chipKIT32/chipKIT-importer/issues/27): "The resolution of additional dependencies in imported projects takes too long"
+- Added support for MikroElektronika Flip&Click board
 
 Version 1.0.5
 - Fixed [issue #24](https://github.com/chipKIT32/chipKIT-importer/issues/24): "Need to default to -O2"

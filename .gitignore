@@ -1,6 +1,7 @@
 build
 nbproject/private
 drafts
+test
 
 # Compiled class file
 *.class
