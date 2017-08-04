@@ -152,6 +152,12 @@ public class ChipKitProjectImporter {
         // TODO: Add a property check
         customLdScriptBoard = CUSTOM_LD_SCRIPT_BOARD_IDS.contains( boardId );
         
+        if ( copyingFiles ) {
+            LOGGER.log(Level.INFO, "Running in copy-all mode" );
+        } else {
+            LOGGER.log(Level.INFO, "Running in no-copy mode" );
+        }
+        
         sourceCoreDirPath = boardConfigNavigator.getChipKitCorePath();
         LOGGER.log(Level.INFO, "Using core directory: {0}", new Object[] {sourceCoreDirPath} );
         sourceVariantDirPath = boardConfigNavigator.getChipKitVariantPath(boardId);

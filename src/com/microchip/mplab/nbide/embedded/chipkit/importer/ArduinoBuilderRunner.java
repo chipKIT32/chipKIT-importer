@@ -236,14 +236,18 @@ public class ArduinoBuilderRunner {
                                 Path dependencyFilePath = Paths.get( path );
                                 // TODO: If the "path" string does not represent a path then it probably contains error information. Find a way to handle it. 
                                 if ( Files.exists( dependencyFilePath ) ) {
-                                    LOGGER.info( "Dependency path:" + dependencyFilePath );
-                                    Path relativeDependencyPath = librariesDir.relativize(dependencyFilePath.normalize());
-                                    String libraryName = relativeDependencyPath.getName(0).toString();
-                                    Path libraryPath = librariesDir.resolve(libraryName);
-                                    if ( !allLibraries.contains(libraryPath) ) {
-                                        LOGGER.info("Found library path: " + libraryPath);
-                                        allLibraries.add(libraryPath);
-                                        ret.add(libraryPath);
+                                    LOGGER.info( "Dependency path: " + dependencyFilePath );
+                                    if ( dependencyFilePath.startsWith( librariesDir ) ) {
+                                        Path relativeDependencyPath = librariesDir.relativize(dependencyFilePath.normalize());
+                                        String libraryName = relativeDependencyPath.getName(0).toString();                                    
+                                        Path libraryPath = librariesDir.resolve(libraryName);                                    
+                                        if ( !allLibraries.contains(libraryPath) ) {
+                                            LOGGER.info("Found library path: " + libraryPath);
+                                            allLibraries.add(libraryPath);
+                                            ret.add(libraryPath);
+                                        }
+                                    } else {
+                                        LOGGER.info( "Ignoring dependency file path:" + dependencyFilePath );
                                     }
                                 }
                             }

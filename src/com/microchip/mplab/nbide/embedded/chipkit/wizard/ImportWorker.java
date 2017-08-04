@@ -139,10 +139,13 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
             deleteExistingProject(projectDir);
         }
 
+        long t0 = System.currentTimeMillis();
         try {
             resultSet.addAll(createProjectFromChipKit());
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
+        } finally {
+            LOGGER.log(Level.INFO, "Elapsed time of import operation: {0} ms", System.currentTimeMillis()-t0);
         }
         
         return resultSet;
