@@ -16,6 +16,7 @@
 package com.microchip.mplab.nbide.embedded.chipkit.wizard;
 
 import com.microchip.crownking.mplabinfo.DeviceSupport;
+import com.microchip.crownking.opt.OptionLanguage;
 import com.microchip.mplab.nbide.embedded.api.LanguageToolchain;
 import com.microchip.mplab.nbide.embedded.chipkit.importer.ArduinoBuilderRunner;
 import com.microchip.mplab.nbide.embedded.chipkit.importer.ArduinoConfig;
@@ -313,9 +314,17 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
 
         // Add source files
         Folder sourceFolder = newProjectDescriptor.getLogicalFolders().findFolderByName(MakeConfigurationBook.SOURCE_FILES_FOLDER);
+        if ( sourceFolder == null ) {
+            sourceFolder = newProjectDescriptor.getLogicalFolders().addNewFolder(ChipKitProjectImporter.SOURCE_FILES_DIRECTORY_NAME,
+                "Source",
+                true,
+                Folder.Kind.SOURCE_LOGICAL_FOLDER
+            );
+        }
         if (copyFiles) {
+            final Folder f = sourceFolder;
             importer.getSourceFilePaths().forEach((p) -> {            
-                addFileToFolder(sourceFolder, p, importer.getSourceFilesDirectoryPath());
+                addFileToFolder(f, p, importer.getSourceFilesDirectoryPath());
             });
         }
 
@@ -477,14 +486,24 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
 
     private void setAuxOptionValue(MakeConfiguration makeConf, String confItemId, String propertyKey, String propertyValue) {        
         OptionConfiguration conf = (OptionConfiguration) makeConf.getAuxObject(confItemId);
-        conf.setProperty(propertyKey, propertyValue);
-        conf.markChanged();        
+        if ( conf != null ) {
+            conf.setProperty(propertyKey, propertyValue);
+        } else {
+            OptionConfiguration newConf = new OptionConfiguration(confItemId, null );
+            newConf.setProperty(propertyKey, propertyValue);
+            makeConf.addAuxObject( newConf );
+        }
     }
 
     private void setAppendixValue(MakeConfiguration makeConf, String confItemId, String value) {        
         OptionConfiguration conf = (OptionConfiguration) makeConf.getAuxObject(confItemId);
-        conf.setAppendix(value);
-        conf.markChanged();        
+        if ( conf != null ) {
+            conf.setAppendix(value);
+        } else {
+            OptionConfiguration newConf = new OptionConfiguration(confItemId, null );
+            newConf.setAppendix(value);
+            makeConf.addAuxObject( newConf );
+        }
     }
 
 }

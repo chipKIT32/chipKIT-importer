@@ -211,16 +211,35 @@ public class ChipKitBoardConfigNavigator {
     public Map<String,String> parseBoardNamesToIDsLookup() throws IOException {
         Map <String,String> ret = new HashMap<>();
         Path boardsFilePath = chipKitHardwarePath.resolve( BOARDS_FILENAME );
-        // TODO: Use "map" instead of "forEach"
-        Files.lines(boardsFilePath).forEach( line -> {
-            if ( !line.startsWith("#") && line.contains(".name") ) {
-                // e.g: cerebot32mx4.name=Cerebot 32MX4
-                String[] pair = line.split("\\.name");
-                String id = pair[0].trim();
-                if ( CURRENTLY_UNSUPPORTED_BOARD_IDS.contains(id) ) return;
-                ret.put( pair[1].substring(1).trim(), id );
-            }
-        });
+        Path variantsDirPath = chipKitHardwarePath.resolve( VARIANTS_DIRNAME );
+        String buildVariantKey = ".build.variant";
+        List<String> boardsFileLines = Files.readAllLines(boardsFilePath);
+        
+        Files.list(variantsDirPath)
+            .parallel()
+            .map( variantDir -> variantDir.getFileName().toString() )
+            .forEach( variantId -> {                
+                Pattern p1 = Pattern.compile(".+\\.build\\.variant\\s*=\\s*"+variantId);
+                String boardId = boardsFileLines.stream()
+                    .filter( line -> p1.matcher(line).matches() )
+                    .findAny()
+                    .map( line -> line.split(buildVariantKey)[0] )
+                    .orElse("");
+                
+                if ( !boardId.isEmpty() ) {
+                    String boardBaseId = boardId.split("\\.")[0];  // First part of the ID - the part before the first dot
+                    String boardName = findBoardName(boardsFileLines, boardId);
+                    
+                    if ( boardName.isEmpty() ) {
+                        boardId = boardBaseId;
+                        boardName = findBoardName(boardsFileLines, boardId);                    
+                    }
+                    
+                    if ( !boardId.isEmpty() && !CURRENTLY_UNSUPPORTED_BOARD_IDS.contains(boardBaseId) ) {
+                        ret.put( boardName, boardId );
+                    }
+                }
+            });
         return ret;
     }
     
@@ -255,7 +274,7 @@ public class ChipKitBoardConfigNavigator {
     public ChipKitBoardConfig readCompleteBoardConfig( String boardId, Path coreDirPath, Path variantDirPath, Path ldScriptDirPath ) throws IOException {
         Map <String,String> config = new HashMap<>();
         config.put("build.arch", "PIC32");
-        config.put("runtime.ide.version", "10802");
+        config.put("runtime.ide.version", "10805");
         config.put("build.core.path", coreDirPath.toString() );
         config.put("build.variant.path", variantDirPath != null ? variantDirPath.toString() : "" );
         config.put("build.ldscript_dir.path", ldScriptDirPath != null ? ldScriptDirPath.toString() : "" );
@@ -348,6 +367,15 @@ public class ChipKitBoardConfigNavigator {
             LOGGER.log( Level.WARNING, "Failed to find the pic32prog in " + toolsDir, ex );
         }
         return null;
+    }
+    
+    private String findBoardName( List<String> boardsFileLines, String boardId ) {
+        Pattern p2 = Pattern.compile( boardId + "(\\.name)*\\s*=.*" );
+        return boardsFileLines.stream()
+            .filter( line -> p2.matcher(line).matches() )
+            .findAny()
+            .map( line -> line.split("=")[1] )
+            .orElse("");
     }
     
 }

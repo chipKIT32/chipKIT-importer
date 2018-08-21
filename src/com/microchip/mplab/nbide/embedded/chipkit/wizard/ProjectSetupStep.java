@@ -15,11 +15,17 @@
 
 package com.microchip.mplab.nbide.embedded.chipkit.wizard;
 
+import com.microchip.crownking.mplabinfo.DeviceSupport;
+import com.microchip.crownking.mplabinfo.DeviceSupportException;
 import com.microchip.crownking.opt.Version;
 import com.microchip.mplab.mdbcore.MessageMediator.ActionList;
 import com.microchip.mplab.mdbcore.MessageMediator.DialogBoxType;
 import com.microchip.mplab.mdbcore.MessageMediator.Message;
 import com.microchip.mplab.mdbcore.MessageMediator.MessageMediator;
+import com.microchip.mplab.nbide.embedded.api.LanguageTool;
+import com.microchip.mplab.nbide.embedded.api.LanguageToolchain;
+import com.microchip.mplab.nbide.embedded.api.LanguageToolchainManager;
+import com.microchip.mplab.nbide.embedded.api.LanguageToolchainMeta;
 import com.microchip.mplab.nbide.embedded.api.ui.TypeAheadComboBox;
 import com.microchip.mplab.nbide.embedded.chipkit.importer.ArduinoConfig;
 import com.microchip.mplab.nbide.embedded.chipkit.importer.ChipKitBoardConfigNavigator;
@@ -60,10 +66,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.filechooser.FileFilter;
@@ -81,6 +89,8 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
     private ChipKitBoardConfigNavigator boardConfigNavigator;
     private WizardDescriptor wizardDescriptor;
     private ProjectSetupPanel view;
+    private String deviceName;
+    private LanguageToolchain languageToolchain;
 
     public ProjectSetupStep( ArduinoConfig arduinoConfig ) {
         this.arduinoConfig = arduinoConfig;
@@ -129,6 +139,11 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
         
         if (!isBoardValid()) {
             wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, NbBundle.getMessage(ProjectSetupPanel.class, "MSG_UnknownChipKitBoard"));
+            return false;
+        }
+        
+        if (!isToolchainValid()) {
+            wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, NbBundle.getMessage(ProjectSetupPanel.class, "MSG_NoMatchingToolchainFound"));
             return false;
         }
 
@@ -198,6 +213,24 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
     public final void removeChangeListener(ChangeListener l) {
         synchronized (listeners) {
             listeners.remove(l);// NOI18N
+        }
+    }
+
+    private void updateDeviceAndToolchain() {
+        try {
+            String boardName = readSelectedValueFromComboBox(view.chipKitBoardCombo);
+            String boardId = chipKitBoardIdLookup.get(boardName);
+            String mcu = boardConfigNavigator.parseMCU(boardId);
+            
+            if ( mcu != null ) {
+                deviceName = findMPLABDeviceNameForMCU(mcu).orElse("");
+                languageToolchain = findMatchingLanguageToolchain(deviceName).orElse(null);
+            } else {
+                deviceName = "";
+                languageToolchain = null;
+            }            
+        } catch (IOException ex) {            
+            Exceptions.printStackTrace(ex);
         }
     }
 
@@ -329,6 +362,11 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
                 Exceptions.printStackTrace(ex);
             }
         }
+        
+        Optional.of( languageToolchain )
+                .map( LanguageToolchain::getMeta )
+                .map( LanguageToolchainMeta::getID )
+                .ifPresent( id -> settings.putProperty(LANGUAGE_TOOL_META_ID.key(), id) );
 
         settings.putProperty(PROJECT_DIR.key(), new File(targetDir));
         settings.putProperty(PROJECT_NAME.key(), projectName);
@@ -448,6 +486,7 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
     }
     
     void chipKitBoardComboItemStateChanged(ItemEvent evt) {
+        updateDeviceAndToolchain();
         fireChangeEvent();
     }
 
@@ -570,6 +609,10 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
         return boardId != null;
     }
     
+    private boolean isToolchainValid() {
+        return languageToolchain != null;        
+    }
+    
     private boolean isValidProjectName() {
         String projectName = view.projectNameField.getText().trim();
         // unix allows a lot of strange names, but let's prohibit this for project
@@ -663,6 +706,32 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
             }
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
+        }
+    }
+    
+    private Optional <String> findMPLABDeviceNameForMCU(String mcu) {
+        String lowerCaseMCU = mcu.toLowerCase();
+        try {
+            return Arrays.stream( DeviceSupport.getInstance().getDeviceNames() )
+//                .peek( n -> System.out.println(n.toLowerCase() + " - " + lowerCaseMCU) )
+                .filter( n -> n.toLowerCase().contains(lowerCaseMCU) )
+                .min( (n1, n2) -> Integer.signum( (n1.length()-mcu.length()) - (n2.length()-mcu.length()) ) );
+        } catch (DeviceSupportException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return Optional.empty();
+    }
+    
+    private Optional <LanguageToolchain> findMatchingLanguageToolchain( String device ) {
+        if ( device != null ) {
+            return LanguageToolchainManager.getDefault().getToolchains()
+                .stream()
+//                .peek( tc -> System.out.println( tc.getDirectory() + " : " + tc.getMeta().getSupportedDevices() ) )
+                .filter(tc -> tc.getSupport(device).isSupported())
+                .filter(tc -> tc.getTool(LanguageTool.CCCompiler) != null)
+                .findAny();
+        } else {
+            return Optional.empty();
         }
     }
 
