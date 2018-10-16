@@ -16,8 +16,8 @@
 package com.microchip.mplab.nbide.embedded.pic32prog.actions;
 
 import com.microchip.mplab.nbide.embedded.serialmonitor.SerialPortComboModel;
-import com.microchip.mplab.nbide.embedded.chipkit.importer.ChipKitProjectImporter;
-import com.microchip.mplab.nbide.embedded.chipkit.importer.NativeProcessRunner;
+import com.microchip.mplab.nbide.embedded.arduino.importer.NativeProcessRunner;
+import com.microchip.mplab.nbide.embedded.arduino.importer.ProjectImporter;
 import com.microchip.mplab.nbide.embedded.makeproject.HotProject;
 import com.microchip.mplab.nbide.embedded.makeproject.MakeActionProvider;
 import com.microchip.mplab.nbide.embedded.makeproject.MakeProject;
@@ -69,13 +69,13 @@ import org.openide.windows.TopComponent;
 
 @ActionID(
         category = "Build",
-        id = "com.microchip.mplab.nbide.embedded.chipkit.actions.RunPic32ProgAction"
+        id = "com.microchip.mplab.nbide.embedded.arduino.actions.RunPic32ProgAction"
 )
 @ActionRegistration(
         lazy = false,
         displayName = "#CTL_RunPic32ProgAction.name"
 )
-@ActionReference(path = "Toolbars/chipKIT", position = 900)
+@ActionReference(path = "Toolbars/Arduino", position = 900)
 public final class RunPic32ProgAction extends AbstractAction implements PropertyChangeListener, Presenter.Toolbar {
 
     private static final RequestProcessor RP = new RequestProcessor("RunPic32ProgTask");
@@ -185,11 +185,11 @@ public final class RunPic32ProgAction extends AbstractAction implements Property
                 String selectedPortName = serialPortsCombo.getSelectedItem().toString();
 
                 String hexFileLocation = makeProject.getActiveConfiguration().getAbsoluteFinalLoadableFile();
-                FileObject chipKitConfFile = makeProject.getProjectDirectory().getFileObject("nbproject").getFileObject(ChipKitProjectImporter.CHIPKIT_PROPERTIES_FILENAME);
-                Properties chipKitProperties = new Properties();
-                chipKitProperties.load(chipKitConfFile.getInputStream());
+                FileObject importedProjectPropertiesFile = makeProject.getProjectDirectory().getFileObject("nbproject").getFileObject(ProjectImporter.IMPORTED_PROPERTIES_FILENAME);
+                Properties importedProjectProperties = new Properties();
+                importedProjectProperties.load(importedProjectPropertiesFile.getInputStream());
 
-                String pic32progLocation = chipKitProperties.get("pic32prog") != null ? chipKitProperties.get("pic32prog").toString() : null;
+                String pic32progLocation = importedProjectProperties.get("pic32prog") != null ? importedProjectProperties.get("pic32prog").toString() : null;
 
                 if (pic32progLocation != null) {
                     NativeProcessRunner nativeProcessRunner = new NativeProcessRunner(m -> io.getOut().println(m));
