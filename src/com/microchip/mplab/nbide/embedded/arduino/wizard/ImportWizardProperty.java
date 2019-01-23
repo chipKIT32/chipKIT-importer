@@ -22,6 +22,7 @@ public enum ImportWizardProperty {
     ARDUINO_PLATFORM_DIR("platformCoreDir"),
     BOARD_NAME("boardName"),
     BOARD("board"),
+    BOARD_CONFIGURATION("boardConfiguration"),
     LAST_SOURCE_PROJECT_LOCATION("lastSourceProjectLocation"),
     LAST_ARDUINO_PLATFORM("lastPlatform"),
     LAST_ARDUINO_PLATFORM_LOCATION("lastPlatformLocation"),

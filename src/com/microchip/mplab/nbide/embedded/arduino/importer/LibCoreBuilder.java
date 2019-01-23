@@ -32,7 +32,7 @@ public class LibCoreBuilder extends AbstractMakeAssistant {
     
     private final Path sourceDir;
     private Path buildDirPath;
-    private Board board;
+    private BoardConfiguration boardConfiguration;
     private GCCToolFinder toolFinder;
     private Path libCorePath;
     private String archiveCommand;
@@ -65,8 +65,8 @@ public class LibCoreBuilder extends AbstractMakeAssistant {
     }
 
     @Override
-    public Board getBoard() {
-        return board;
+    public BoardConfiguration getBoardConfiguration() {
+        return boardConfiguration;
     }
     
     @Override
@@ -92,9 +92,9 @@ public class LibCoreBuilder extends AbstractMakeAssistant {
         invokeMakeTool(messageConsumer, messageConsumer);
     }
     
-    public void build( Board board, GCCToolFinder toolFinder, Consumer<String> messageConsumer ) throws IOException, InterruptedException {
+    public void build( BoardConfiguration boardConfiguration, GCCToolFinder toolFinder, Consumer<String> messageConsumer ) throws IOException, InterruptedException {
         this.buildDirPath = Files.createTempDirectory("build");
-        this.board = board;
+        this.boardConfiguration = boardConfiguration;
         this.toolFinder = toolFinder;
         this.libCorePath = buildDirPath.resolve(LIB_CORE_FILENAME);
         if ( sourceDir != null ) {
@@ -113,7 +113,7 @@ public class LibCoreBuilder extends AbstractMakeAssistant {
         runtimeData.put( "archive_file_path", LIB_CORE_FILENAME );
         getObjectFilenames().forEach( n -> {
             runtimeData.put("object_file", n);
-            getMakefileContents().add( "\t" + board.getValue("recipe.ar.pattern", runtimeData).get() );
+            getMakefileContents().add( "\t" + boardConfiguration.getValue("recipe.ar.pattern", runtimeData).get() );
         });
     } 
 
@@ -127,14 +127,14 @@ public class LibCoreBuilder extends AbstractMakeAssistant {
     }
     
     @Override
-    protected String buildIncludesSection( Board board ) {
+    protected String buildIncludesSection( BoardConfiguration boardConfiguration ) {
         if ( sourceDir != null ) {
 //            StringBuilder ret = new StringBuilder();            
 //            ret.append(" \"-I").append(sourceDir.toString()).append("\"");
 //            return ret.toString();
             return "-I.";
         } else {
-            return super.buildIncludesSection(board);
+            return super.buildIncludesSection(boardConfiguration);
         }
     }
     

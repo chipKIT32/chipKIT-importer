@@ -56,6 +56,7 @@ class ProjectSetupPanel extends JPanel {
         copyDependenciesCheckBox = new javax.swing.JCheckBox();
         overwriteCheckBox = new javax.swing.JCheckBox();
 
+        sourceProjectLocationLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         org.openide.awt.Mnemonics.setLocalizedText(sourceProjectLocationLabel, org.openide.util.NbBundle.getMessage(ProjectSetupPanel.class, "ProjectSetupPanel.sourceProjectLocationLabel.text")); // NOI18N
 
         sourceProjectLocationField.setText(org.openide.util.NbBundle.getMessage(ProjectSetupPanel.class, "ProjectSetupPanel.sourceProjectLocationField.text")); // NOI18N

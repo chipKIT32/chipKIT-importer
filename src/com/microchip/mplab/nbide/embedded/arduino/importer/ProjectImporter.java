@@ -69,7 +69,7 @@ public class ProjectImporter {
     private Path sourceProjectDirectoryPath;
     private Path targetProjectDirectoryPath;
     private Path customLdScriptsPath;
-    private Board board;
+    private BoardConfiguration boardConfiguration;
     private ArduinoBuilderRunner arduinoBuilderRunner;
     private BootloaderPathProvider bootloaderPathProvider;
 
@@ -131,17 +131,17 @@ public class ProjectImporter {
         return customLdScriptsPath;
     }
 
-    public void setBoard(Board board) {
-        this.board = board;
+    public void setBoardConfiguration(BoardConfiguration boardConfiguration) {
+        this.boardConfiguration = boardConfiguration;
     }
 
-    public Board getBoard() {
-        return board;
+    public BoardConfiguration getBoardConfiguration() {
+        return boardConfiguration;
     }
     
     public void execute() throws IOException, InterruptedException {
         // TODO: Add a property check
-        customLdScriptBoard = CUSTOM_LD_SCRIPT_BOARD_IDS.contains( board.getBoardId() );
+        customLdScriptBoard = CUSTOM_LD_SCRIPT_BOARD_IDS.contains( boardConfiguration.getBoardId() );
         
         if ( copyingFiles ) {
             LOGGER.log(Level.INFO, "Running in copy-all mode" );
@@ -149,21 +149,21 @@ public class ProjectImporter {
             LOGGER.log(Level.INFO, "Running in no-copy mode" );
         }
         
-        sourceCoreDirPath = board.getCoreDirectoryPath();
+        sourceCoreDirPath = boardConfiguration.getCoreDirectoryPath();
         LOGGER.log(Level.INFO, "Using core directory: {0}", new Object[] {sourceCoreDirPath} );
-        sourceVariantDirPath = board.getVariantPath();
-        LOGGER.log(Level.INFO, "Using variant directory for board \"{0}\": {1}", new Object[] {board.getBoardId(), sourceVariantDirPath} );
+        sourceVariantDirPath = boardConfiguration.getVariantPath();
+        LOGGER.log(Level.INFO, "Using variant directory for board \"{0}\": {1}", new Object[] {boardConfiguration.getBoardId(), sourceVariantDirPath} );
         
         Path coreDirPath = copyingFiles ? getTargetCoreDirectoryPath() : sourceCoreDirPath;
         Path variantDirPath = copyingFiles ? getTargetCoreDirectoryPath() : sourceVariantDirPath;
         Path ldScriptDirPath = customLdScriptBoard ? getTargetCoreDirectoryPath() : null;
         
         // TODO: Move this section somewhere else!
-        board.getPlatform().putValue("runtime.ide.version", "10802");
-        board.putValue("build.path", "\""+targetProjectDirectoryPath.toString()+"\"" );
-        board.putValue("build.core.path", coreDirPath.toString() );
-        board.putValue("build.variant.path", variantDirPath != null ? variantDirPath.toString() : "" );
-        board.putValue("build.ldscript_dir.path", ldScriptDirPath != null ? ldScriptDirPath.toString() : "" );
+        boardConfiguration.getPlatform().putValue("runtime.ide.version", "10802");
+        boardConfiguration.putValue("build.path", "\""+targetProjectDirectoryPath.toString()+"\"" );
+        boardConfiguration.putValue("build.core.path", coreDirPath.toString() );
+        boardConfiguration.putValue("build.variant.path", variantDirPath != null ? variantDirPath.toString() : "" );
+        boardConfiguration.putValue("build.ldscript_dir.path", ldScriptDirPath != null ? ldScriptDirPath.toString() : "" );
         
         createProjectDirectoryStructure();
         Path tempSketchPath = preprocessSourceProject();
@@ -211,8 +211,8 @@ public class ProjectImporter {
             return Files.list(corePath).filter( p -> LINKER_SCRIPT_MATCHER.matches(p.getFileName()) );
         } else {
             List <Path> paths = new ArrayList<>();
-            board.getCommonLinkerScriptFilename().ifPresent( f -> paths.add( sourceCoreDirPath.resolve(f) ) );
-            board.getDeviceLinkerScriptFilename().ifPresent( f -> paths.add( sourceCoreDirPath.resolve(f) ) );
+            boardConfiguration.getCommonLinkerScriptFilename().ifPresent( f -> paths.add( sourceCoreDirPath.resolve(f) ) );
+            boardConfiguration.getDeviceLinkerScriptFilename().ifPresent( f -> paths.add( sourceCoreDirPath.resolve(f) ) );
             return paths.stream();
         }
     }
@@ -252,7 +252,7 @@ public class ProjectImporter {
             Path coreDirPath = getTargetCoreDirectoryPath();
             return FileTreeWalker.walk(coreDirPath).filter( p -> !Files.isDirectory(p) );
         } else {
-            String deviceLinkerScriptFilename = board.getDeviceLinkerScriptFilename().orElse("");
+            String deviceLinkerScriptFilename = boardConfiguration.getDeviceLinkerScriptFilename().orElse("");
             if ( deviceLinkerScriptFilename.isEmpty() ) {
                 return createSourceCoreFilesStream();
             }
@@ -266,7 +266,7 @@ public class ProjectImporter {
             
             if ( customLdScriptBoard ) {
                 Path coreDirPath = getTargetCoreDirectoryPath();
-                String debugDeviceLinkerScriptFilename = board.getDeviceDebugLinkerScriptFilename().orElse("");
+                String debugDeviceLinkerScriptFilename = boardConfiguration.getDeviceDebugLinkerScriptFilename().orElse("");
                 Path debugDeviceLinkerScriptPath = coreDirPath.resolve( debugDeviceLinkerScriptFilename );
                 return Stream.concat( createSourceCoreFilesStream(), Stream.of( deviceLinkerScriptPath, debugDeviceLinkerScriptPath ) );
             } else {
@@ -280,12 +280,12 @@ public class ProjectImporter {
     }
     
     public boolean hasBootloaderPath() {
-        return !customLdScriptBoard && bootloaderPathProvider.getBootloaderPath(board.getBoardId()) != null;
+        return !customLdScriptBoard && bootloaderPathProvider.getBootloaderPath(boardConfiguration.getBoardId()) != null;
     }
     
     public Path getProductionBootloaderPath() {
         if ( customLdScriptBoard ) return null;
-        Path sourceBootloaderPath = bootloaderPathProvider.getBootloaderPath(board.getBoardId());
+        Path sourceBootloaderPath = bootloaderPathProvider.getBootloaderPath(boardConfiguration.getBoardId());
         return sourceBootloaderPath != null ? getTargetCoreDirectoryPath().resolve( sourceBootloaderPath.getFileName() ) : null;
     }
 
@@ -296,9 +296,9 @@ public class ProjectImporter {
     private Path preprocessSourceProject() {
         Path inoFilePath = findMainInoFilePath( sourceProjectDirectoryPath );
         if ( copyingFiles ) {
-            arduinoBuilderRunner.preprocess(board, inoFilePath);
+            arduinoBuilderRunner.preprocess(boardConfiguration, inoFilePath);
         } else {
-            arduinoBuilderRunner.preprocess(board, inoFilePath, targetProjectDirectoryPath );
+            arduinoBuilderRunner.preprocess(boardConfiguration, inoFilePath, targetProjectDirectoryPath );
         }
         sourceLibraryPaths = arduinoBuilderRunner.getAllLibraryPaths();
         Path sketchDirPath = arduinoBuilderRunner.getPreprocessedSketchDirPath();
@@ -368,8 +368,8 @@ public class ProjectImporter {
     
     private void copyLinkerScripts() throws IOException {
         Path targetDirectoryPath = getTargetCoreDirectoryPath();
-        String commonLinkerScriptFilename = board.getCommonLinkerScriptFilename().orElse("");
-        String deviceLinkerScriptFilename = board.getDeviceLinkerScriptFilename().orElse("");
+        String commonLinkerScriptFilename = boardConfiguration.getCommonLinkerScriptFilename().orElse("");
+        String deviceLinkerScriptFilename = boardConfiguration.getDeviceLinkerScriptFilename().orElse("");
         
         boolean commonLinkerScriptFilenameAvailable = !commonLinkerScriptFilename.isEmpty();
         boolean deviceLinkerScriptFilenameAvailable = !deviceLinkerScriptFilename.isEmpty();
@@ -387,7 +387,7 @@ public class ProjectImporter {
                 Path boardCustomLdScriptPath = opt.get();
                 Files.copy( boardCustomLdScriptPath, targetDirectoryPath.resolve( boardCustomLdScriptPath.getFileName() ) );
             } else {
-                LOGGER.log(Level.WARNING, "No custom .ld script found for board: {0}", board.getBoardId());
+                LOGGER.log(Level.WARNING, "No custom .ld script found for board: {0}", boardConfiguration);
             }
         } 
         
@@ -405,9 +405,9 @@ public class ProjectImporter {
         if ( customLdScriptBoard ) return;
         
         // Production bootloader
-        Path srcProdBootloaderPath = bootloaderPathProvider.getBootloaderPath(board.getBoardId());        
+        Path srcProdBootloaderPath = bootloaderPathProvider.getBootloaderPath(boardConfiguration.getBoardId());        
         if ( srcProdBootloaderPath == null ) {
-            LOGGER.log(Level.WARNING, "No bootloader .hex file found for board: {0}", board.getBoardId());
+            LOGGER.log(Level.WARNING, "No bootloader .hex file found for board: {0}", boardConfiguration);
             return;
         }
         Files.copy(srcProdBootloaderPath, getTargetCoreDirectoryPath().resolve( srcProdBootloaderPath.getFileName() ) );
@@ -456,7 +456,7 @@ public class ProjectImporter {
     private void buildLibCore() throws IOException, InterruptedException {
         Path coreDirPath = targetProjectDirectoryPath.resolve(CORE_DIRECTORY_NAME);
         LibCoreBuilder libCoreBuilder = new LibCoreBuilder( coreDirPath );
-        libCoreBuilder.build( board, arduinoBuilderRunner.getToolFinder(), LOGGER::info );
+        libCoreBuilder.build( boardConfiguration, arduinoBuilderRunner.getToolFinder(), LOGGER::info );
         Files.copy( libCoreBuilder.getLibCorePath(), coreDirPath.resolve( LibCoreBuilder.LIB_CORE_FILENAME ) );
         Files.copy( libCoreBuilder.getMakefilePath(), coreDirPath.resolve( libCoreBuilder.getMakefileName() ) );        
         libCoreBuilder.cleanup();
@@ -467,7 +467,7 @@ public class ProjectImporter {
             return Stream.concat(
                 Stream.concat( FileTreeWalker.walk(sourceCoreDirPath), FileTreeWalker.walk(sourceVariantDirPath) )
                         .filter( p -> !Files.isDirectory(p) && PROJECT_SOURCE_FILE_MATCHER.matches(p.getFileName()) ),
-                board.getCommonLinkerScriptFilename().map( f -> Stream.of( sourceCoreDirPath.resolve(f) ) ).orElse(Stream.empty())
+                boardConfiguration.getCommonLinkerScriptFilename().map( f -> Stream.of( sourceCoreDirPath.resolve(f) ) ).orElse(Stream.empty())
             );
         } catch (IOException ex) {
             LOGGER.log( Level.WARNING, "Failed to create source core files stream", ex );

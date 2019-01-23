@@ -75,17 +75,17 @@ public class ArduinoBuilderRunner {
         return toolFinder;
     }
 
-    public void preprocess(Board board, Path inoFilePath) {
+    public void preprocess(BoardConfiguration boardConfiguration, Path inoFilePath) {
         Path tempDirPath = null;
         try {
             tempDirPath = Files.createTempDirectory("preprocess");
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        preprocess(board, inoFilePath, tempDirPath);
+        preprocess(boardConfiguration, inoFilePath, tempDirPath);
     }
     
-    public void preprocess(Board board, Path inoFilePath, Path preprocessDirPath) {
+    public void preprocess(BoardConfiguration boardConfiguration, Path inoFilePath, Path preprocessDirPath) {
         try {
             this.preprocessDirPath = preprocessDirPath;
             if ( !Files.exists(preprocessDirPath) ) {
@@ -93,13 +93,13 @@ public class ArduinoBuilderRunner {
             }
             
             // Run Arduino-Builder
-            int errorCode = runArduinoBuilder(board, inoFilePath);
+            int errorCode = runArduinoBuilder(boardConfiguration, inoFilePath);
 
             if (errorCode == NO_ERROR_CODE) {
                 // Find library paths
                 mainLibraryPaths = findMainLibraryPaths();
                 // Find library dependencies
-                auxLibraryPaths = findAuxLibraryPaths(board, toolFinder, mainLibraryPaths);
+                auxLibraryPaths = findAuxLibraryPaths(boardConfiguration, toolFinder, mainLibraryPaths);
             } else {
                 String message = "Failed to preprocess file \"" + inoFilePath + "\". Check logs for details.";
                 LOGGER.log( Level.SEVERE, message );
@@ -144,11 +144,11 @@ public class ArduinoBuilderRunner {
     }
 
     // TODO: Improve handling of non-standard scenarios (missing directories etc)
-    private int runArduinoBuilder( Board board, Path inoFilePath ) throws IOException, InterruptedException {
+    private int runArduinoBuilder( BoardConfiguration boardConfiguration, Path inoFilePath ) throws IOException, InterruptedException {
         final Path packagesPath = arduinoConfig.getPackagesPath();
         final Path hardwarePath = arduinoConfig.findHardwarePath().get();
         final boolean packagesDirExists = Files.exists(packagesPath);
-        final String fqbn = board.getValue("fqbn").get();
+        final String fqbn = boardConfiguration.getFqbn();
         final Path librariesDirPath = findSketchbookLibrariesDirectoryPath(arduinoConfig, inoFilePath);        
         
         // Run preprocess command        
@@ -230,13 +230,13 @@ public class ArduinoBuilderRunner {
         return libraryPaths;
     }
 
-    private List <Path> findAuxLibraryPaths(Board board, GCCToolFinder toolFinder, List<Path> mainLibraries) throws IOException {
+    private List <Path> findAuxLibraryPaths(BoardConfiguration boardConfiguration, GCCToolFinder toolFinder, List<Path> mainLibraries) throws IOException {
         LOGGER.info("Looking for additional library paths");
         
         // TODO: Consider expanding the list of valid library source file extensions
         final PathMatcher librarySourceMatcher = FileSystems.getDefault().getPathMatcher("glob:*.{c,cpp}");
         final Path gccPath = toolFinder.findTool( LanguageTool.CCCompiler );
-        final List <Path> coreDirPaths = board.getCoreDirPaths();
+        final List <Path> coreDirPaths = boardConfiguration.getCoreDirPaths();
         
         final List <Path> allLibraries = new ArrayList<>(mainLibraries);
         final List <Path> ret = new ArrayList<>();

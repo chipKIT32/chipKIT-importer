@@ -17,6 +17,8 @@ package com.microchip.mplab.nbide.embedded.arduino.wizard;
 
 
 import com.microchip.mplab.nbide.embedded.arduino.importer.ArduinoConfig;
+import com.microchip.mplab.nbide.embedded.arduino.importer.Board;
+import com.microchip.mplab.nbide.embedded.arduino.importer.PlatformFactory;
 import com.microchip.mplab.nbide.embedded.makeproject.api.wizards.WizardProperty;
 import java.util.Set;
 import org.openide.WizardDescriptor;
@@ -26,11 +28,11 @@ import java.awt.Component;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 
@@ -59,7 +61,8 @@ public class ImportWizardIterator implements WizardDescriptor.InstantiatingItera
         wiz.setTitle(NbBundle.getMessage(ImportWizardIterator.class, "WizardTitle") );        
         
         panels = new WizardDescriptor.Panel[]{            
-            new ProjectSetupStep( arduinoConfig ),
+            new ProjectSetupStep( arduinoConfig, new PlatformFactory(), new MPLABDeviceAssistant() ),
+            new BoardConfigurationStep( new MPLABDeviceAssistant() ),
             new ProgrammerDebuggerSelectionStep(),
             new ProgressTrackingStep( importWorker )
         };
@@ -72,15 +75,15 @@ public class ImportWizardIterator implements WizardDescriptor.InstantiatingItera
             if (c instanceof JComponent) { // assume Swing components
                 JComponent jc = (JComponent) c;
                 // Sets step number of a component
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, i);   // NOI18N
+                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, i);           // NOI18N
                 // Sets steps names for a panel
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, steps);                     // NOI18N
+                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, steps);                 // NOI18N
                 // Turn on subtitle creation on each step
                 jc.putClientProperty(WizardDescriptor.PROP_AUTO_WIZARD_STYLE, Boolean.TRUE);     // NOI18N
                 // Show steps on the left side with the image on the background
                 jc.putClientProperty(WizardDescriptor.PROP_CONTENT_DISPLAYED, Boolean.TRUE);     // NOI18N
                 // Turn on numbering of all steps
-                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, Boolean.TRUE);     // NOI18N
+                jc.putClientProperty(WizardDescriptor.PROP_CONTENT_NUMBERED, Boolean.TRUE);      // NOI18N
             }
         }
 
@@ -92,6 +95,7 @@ public class ImportWizardIterator implements WizardDescriptor.InstantiatingItera
             Set<FileObject> resultSet = importWorker.get();
             return resultSet;
         } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
             LOGGER.log(Level.SEVERE, "Import failed!", ex);
             return new HashSet<>();
         }
@@ -114,7 +118,7 @@ public class ImportWizardIterator implements WizardDescriptor.InstantiatingItera
 
     @Override
     public boolean hasPrevious() {
-        return index > 0 && index < 2;
+        return index > 0 && index < panels.length-1;
     }
 
     @Override
@@ -122,7 +126,18 @@ public class ImportWizardIterator implements WizardDescriptor.InstantiatingItera
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        index++;
+        
+        if ( index == 0 ) {
+            Board board = (Board) wiz.getProperty(ImportWizardProperty.BOARD.key());
+            if ( board.hasOptions() ) {
+                index++;
+            } else {
+                // Skip the "Board Configuration" page                
+                index += 2;
+            }             
+        } else {        
+            index++;
+        }
     }
 
     @Override
@@ -130,11 +145,21 @@ public class ImportWizardIterator implements WizardDescriptor.InstantiatingItera
         if (!hasPrevious()) {
             throw new NoSuchElementException();
         }
-        index--;
+        if ( index == 2 ) {
+            Board board = (Board) wiz.getProperty(ImportWizardProperty.BOARD.key());
+            if ( board.hasOptions() ) {
+                index--;
+            } else {
+                // Skip the "Board Configuration" page
+                index -= 2;
+            }             
+        } else {        
+            index--;
+        }
     }
 
     @Override
-    public WizardDescriptor.Panel current() {
+    public WizardDescriptor.Panel current() {        
         return panels[index];
     }
 

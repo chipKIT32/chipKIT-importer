@@ -17,9 +17,6 @@ public class PIC32Platform extends Platform {
         putValue("compiler.size.cmd", "xc32-size");
         
         putValue("build.extra_flags", getValue("build.extra_flags").orElse("") + " -mnewlib-libc");
-        putValue("compiler.define", getValue("compiler.define").orElse("") + " -D__CTYPE_NEWLIB -DXPRJ_default=default");
-        putValue("compiler.cpp.flags", getValue("compiler.cpp.flags").orElse("") + " -std=gnu++11");
-        
         data.entrySet().forEach( e -> e.setValue( e.getValue().replaceAll(" -O2 ", " -O1 ") ) );
     }
     

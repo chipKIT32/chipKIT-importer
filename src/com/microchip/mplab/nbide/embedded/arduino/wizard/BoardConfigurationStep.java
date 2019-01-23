@@ -15,36 +15,47 @@
 
 package com.microchip.mplab.nbide.embedded.arduino.wizard;
 
+import com.microchip.mplab.nbide.embedded.arduino.importer.Board;
+import com.microchip.mplab.nbide.embedded.arduino.importer.BoardConfiguration;
+import com.microchip.mplab.nbide.embedded.arduino.importer.BoardOption;
+import static com.microchip.mplab.nbide.embedded.arduino.wizard.ImportWizardProperty.BOARD;
+import static com.microchip.mplab.nbide.embedded.arduino.wizard.ImportWizardProperty.BOARD_CONFIGURATION;
 import java.awt.Component;
-import java.beans.PropertyChangeEvent;
+import java.awt.event.ItemEvent;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
-import javax.swing.SwingWorker;
-import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 
 
-public class ProgressTrackingStep implements WizardDescriptor.Panel<WizardDescriptor> {
+public class BoardConfigurationStep implements WizardDescriptor.Panel<WizardDescriptor> {
 
     private final Set<ChangeListener> listeners = new HashSet<>();
-    private final ImportWorker importWorker;
     private WizardDescriptor wizardDescriptor;
-    private ProgressTrackingPanel view;
-    private volatile boolean isDone;
+    private BoardConfigurationPanel view;
+    private final MPLABDeviceAssistant deviceAssistant;
+    private Board board;
+    private BoardConfiguration boardConfiguration;
 
-    public ProgressTrackingStep(ImportWorker importWorker) {
-        this.importWorker = importWorker;
+    public BoardConfigurationStep( MPLABDeviceAssistant deviceAssistant ) {
+        this.deviceAssistant = deviceAssistant;
+    }
+    
+    void optionValueItemStateChanged(ItemEvent evt) {
+        updateBoardConfiguration();
+        fireChangeEvent();
     }
     
     @Override
     public Component getComponent() {
         if (view == null) {            
-            view = new ProgressTrackingPanel();
+            view = new BoardConfigurationPanel(this);
         }
         return view;
     }
@@ -57,28 +68,25 @@ public class ProgressTrackingStep implements WizardDescriptor.Panel<WizardDescri
     @Override
     public void readSettings(WizardDescriptor wizardDescriptor) {        
         this.wizardDescriptor = wizardDescriptor;
-        this.wizardDescriptor.setOptions( new Object[] { WizardDescriptor.FINISH_OPTION } );        
-        
-        importWorker.addPropertyChangeListener( (PropertyChangeEvent evt) -> {
-            if ( "state".equals( evt.getPropertyName() ) && evt.getNewValue() == SwingWorker.StateValue.DONE ) {
-                if ( importWorker.hasFailed() ) {                    
-                    onImportFailed( importWorker.getException() );
-                } else {
-                    onImportSuccess();
-                }
-            }
-        });
-        importWorker.execute();
+        this.board = (Board) wizardDescriptor.getProperty(BOARD.key());
+        this.view.buildContentPane(board);
+        updateBoardConfiguration();
     }
-
+    
     @Override
     public void storeSettings(WizardDescriptor wizardDescriptor) {
-        // Ignore
+        wizardDescriptor.putProperty(BOARD_CONFIGURATION.key(), boardConfiguration);
+        deviceAssistant.storeSettings(wizardDescriptor);
     }
 
     @Override
     public boolean isValid() {
-        return isDone;
+        if (!isToolchainValid()) {
+            wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, NbBundle.getMessage(ProjectSetupPanel.class, "MSG_NoMatchingToolchainFound"));
+            return false;
+        }
+        
+        return true;
     }
 
     @Override
@@ -95,28 +103,6 @@ public class ProgressTrackingStep implements WizardDescriptor.Panel<WizardDescri
         }
     }
 
-    
-    //**********************************************
-    //************** PRIVATE METHODS ***************
-    //**********************************************
-    private void onImportSuccess() {
-        view.onImportSuccess();
-        isDone = true;
-        fireChangeEvent();
-        Timer timer = new Timer(2000, (evt) -> {
-            wizardDescriptor.doFinishClick();
-        });
-        timer.setRepeats(false);
-        timer.start();
-    }
-    
-    private void onImportFailed( Exception ex ) {
-        view.onImportFailed(ex);
-        isDone = true;
-        fireChangeEvent();
-        Exceptions.printStackTrace(ex);
-    }
-    
     private void fireChangeEvent() {
         Iterator<ChangeListener> it;
         synchronized (listeners) {
@@ -128,4 +114,16 @@ public class ProgressTrackingStep implements WizardDescriptor.Panel<WizardDescri
         }
     }
     
+    private boolean isToolchainValid() {        
+        return deviceAssistant.isToolchainValid();
+    }
+    
+    private void updateBoardConfiguration() {
+        Map <BoardOption,String> optionValues = new HashMap<>();
+        board.getOptions().forEach( option -> {
+            optionValues.put(option, view.getSelectedOptionValue(option)); 
+        });
+        boardConfiguration = new BoardConfiguration(board, optionValues);
+        deviceAssistant.updateDeviceAndToolchain( boardConfiguration );
+    }
 }

@@ -74,8 +74,8 @@ public class BootloaderPathProvider {
         this.hexFileLocator = hexFileLocator;
     }
     
-    public Path getBootloaderPath( BoardId boardID ) {
-        String hexFileName = findHexFileNameForBoard(boardID.getBoard());
+    public Path getBootloaderPath( String boardId ) {
+        String hexFileName = findHexFileNameForBoard(boardId);
         if ( hexFileName == null || hexFileName.isEmpty() ) {
             return null;
         } else {

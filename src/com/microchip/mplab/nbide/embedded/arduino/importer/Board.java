@@ -1,6 +1,5 @@
 package com.microchip.mplab.nbide.embedded.arduino.importer;
 
-import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,9 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public final class Board extends ArduinoDataSource {
 
@@ -23,12 +22,13 @@ public final class Board extends ArduinoDataSource {
     
     private static final Logger LOGGER = Logger.getLogger(Board.class.getName());
     
-    private final BoardId boardId;
+    private final String boardId;
+    private final Map <BoardOption,Set<String>> options;
     
-    Board(Platform platform, BoardId boardId, Map <String,String> data) {
+    public Board(Platform platform, String boardId, Map<String,String> data, Map<BoardOption,Set<String>> options) {
         super(platform, data);
         this.boardId = boardId;
-        putValue("fqbn", createFQBN());
+        this.options = options;
         putValue("build.arch", platform.getArchitecture().toUpperCase());
         String ldScript = data.get("ldscript");
         if ( ldScript != null ) {
@@ -38,8 +38,8 @@ public final class Board extends ArduinoDataSource {
     }
 
     @Override
-    public String toString() {
-        return "Board{" + "boardId=" + boardId + '}';
+    public String toString() {        
+        return "Board {boardId=" + boardId + ", options=" + options.keySet() + '}';
     }
     
     @Override
@@ -68,7 +68,7 @@ public final class Board extends ArduinoDataSource {
         return (Platform) parent;
     }
     
-    public BoardId getBoardId() {
+    public String getBoardId() {
         return boardId;
     }
     
@@ -88,35 +88,16 @@ public final class Board extends ArduinoDataSource {
         return getPlatform().isSAMD();
     }
     
-    public Optional<String> getDeviceLinkerScriptFilename() {
-        return getValue("ldscript");
-    }
-    
-    public Optional<String> getDeviceDebugLinkerScriptFilename() {
-        return getValue("ldscript-debug");
-    }
-
-    public Optional<String> getCommonLinkerScriptFilename() {
-        return getValue("ldcommon");
-    }
-    
     @Override
     public Optional<String> getValue( String dataKey, ArduinoDataSource context, Map <String,String> auxData ) {
         String value = auxData != null ? auxData.get(dataKey) : null;
-        if ( value == null ) value = data.get( createCompleteKey(dataKey) );
-        if ( value == null ) value = data.get( createShortKey(dataKey) ); 
+        if ( value == null ) value = data.get( dataKey );
         if ( value != null ) {
             value = resolveTokens(value, context, auxData);
             return Optional.of(value);
         } else {
             return parent.getValue(dataKey, context, auxData).map( v -> resolveTokens(v, context, auxData) );
         }
-    }
-    
-    @Override
-    public void putValue(String dataKey, String value) {
-        String completeKey = createCompleteKey(dataKey);
-        super.putValue( completeKey, value );
     }
         
     public List <Path> getCoreDirPaths() {
@@ -148,80 +129,17 @@ public final class Board extends ArduinoDataSource {
         }            
         return null;
     }
-    
-    public Path getVariantPath() {
-        if ( boardId == null ) throw new IllegalArgumentException("Board ID cannot be null!");
-        
-        try {
-            Optional <String> opt = getValue("build.variant");
-            Path variantsDirPath = getPlatform().getRootPath().resolve( VARIANTS_DIRNAME );
-            if ( opt.isPresent() ) {
-                Path variantPath = variantsDirPath.resolve( opt.get() );
-                // If the path does not exist, it might just be because of the letter casing in the variant name 
-                // so go through all directories and compare their lower-case names with lower-case variant name:
-                if ( !Files.exists( variantPath ) ) {
-                    String lowerCaseDirName = variantPath.getFileName().toString().toLowerCase();
-                    Optional<Path> findAny = Files.list( variantsDirPath ).filter( p -> p.getFileName().toString().toLowerCase().equals( lowerCaseDirName ) ).findAny();
-                    if ( findAny.isPresent() ) {
-                        variantPath = findAny.get();
-                    } else {
-                        throw new IllegalArgumentException("Did not find any variant directory for board \"" + boardId + "\"");
-                    }
-                }                
-                return variantPath;
-            } else {
-                throw new IllegalArgumentException("Did not find any variant directory for board \"" + boardId + "\"");
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+
+    public Set<BoardOption> getOptions() {
+        return options.keySet();
     }
     
-    public List <Path> getCoreFilePaths() throws IOException {
-        Path variantPath = getVariantPath();
-        Path corePath = getCoreDirectoryPath();
-        
-         // Find source files in variant directory:
-        List<Path> variantFilePaths = new ArrayList<>();                
-        if ( variantPath != null ) {
-            variantFilePaths = Files.list(variantPath)
-                .filter(filePath -> SOURCE_FILE_MATCHER.matches(filePath.getFileName()))
-                .collect( Collectors.toList() );
-        }
-        
-        // Create a list of source file names from the variant directory that will be used to filter core source files:
-        List <String> variantFileNames = variantFilePaths.stream().map( p -> p.getFileName().toString() ).collect( Collectors.toList() );
-        
-        // Find source files in core directory but only those that have not been overriden in the variant directory:
-        List <Path> coreFilePaths = Files.list(corePath)
-            .filter( p -> SOURCE_FILE_MATCHER.matches( p.getFileName()) )
-            .filter( p -> !variantFileNames.contains( p.getFileName().toString() ) )
-            .collect( Collectors.toList() );
-        
-        // Add variant and core source file paths:
-        List <Path> allCoreFilePaths = new ArrayList<>();
-        allCoreFilePaths.addAll( variantFilePaths );
-        allCoreFilePaths.addAll( coreFilePaths );
-        
-        return allCoreFilePaths;
+    public Set<String> getAvailableOptionValues( BoardOption option ) {
+        return options.get(option);
     }
     
-    
-    //***************************************
-    //********** PRIVATE METHODS ************
-    //***************************************
-    private String createFQBN() {
-        // E.g: arduino:avr:pro:cpu=8MHzatmega328
-        String cpuPart = (boardId.hasCpu() ? ":cpu=" + boardId.getCpu() : "");
-        return getPlatform().getVendor() + ":" + getPlatform().getArchitecture() + ":" + boardId.getBoard() + cpuPart;
-    }
-    
-    private String createShortKey( String dataKey ) {
-        return boardId.getBoard() + "." + dataKey;
-    }
-    
-    private String createCompleteKey( String dataKey ) {
-        return (boardId.hasCpu() ? boardId.getBoard() + ".menu.cpu." + boardId.getCpu() : boardId.getBoard()) + "." + dataKey;
+    public boolean hasOptions() {
+        return !options.isEmpty();
     }
     
 }

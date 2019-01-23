@@ -1,5 +1,6 @@
 package com.microchip.mplab.nbide.embedded.arduino.importer;
 
+
 import static com.microchip.mplab.nbide.embedded.arduino.importer.ArduinoConfig.ROOT_PLATFORM_ARCH;
 import static com.microchip.mplab.nbide.embedded.arduino.importer.ArduinoConfig.ROOT_PLATFORM_VENDOR;
 import com.microchip.mplab.nbide.embedded.arduino.importer.pic32.PIC32Platform;
@@ -87,11 +88,11 @@ public final class PlatformFactory {
         String architecture = platformFilePath.getName(hardwareIndex + 1).toString();
 
         try {
-            if (architecture.equalsIgnoreCase("pic32")) {
+//            if (architecture.equalsIgnoreCase("pic32")) {
                 return new PIC32Platform(rootPlatform, vendor, platformFilePath.getParent());
-            } else {
-                return new Platform(rootPlatform, vendor, architecture, platformFilePath.getParent());
-            }
+//            } else {
+//                return new Platform(rootPlatform, vendor, architecture, platformFilePath.getParent());
+//            }
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, String.format("Failed to create a platform for %s / %s ", vendor, architecture), ex);
             return null;

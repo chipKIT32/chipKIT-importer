@@ -18,6 +18,7 @@ package com.microchip.mplab.nbide.embedded.arduino.wizard;
 import com.microchip.mplab.nbide.embedded.api.LanguageToolchainMeta;
 import com.microchip.mplab.nbide.embedded.arduino.importer.ProjectImporter;
 import com.microchip.mplab.nbide.embedded.arduino.importer.Board;
+import com.microchip.mplab.nbide.embedded.arduino.importer.BoardConfiguration;
 import com.microchip.mplab.nbide.embedded.makeproject.api.configurations.MakeConfiguration;
 import com.microchip.mplab.nbide.embedded.makeproject.api.configurations.MakeConfigurationBook;
 import com.microchip.mplab.nbide.embedded.makeproject.api.configurations.OptionConfiguration;
@@ -27,10 +28,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,7 +40,7 @@ import java.util.stream.Stream;
 
 public abstract class ProjectConfigurationImporter {
     
-    private final Board board;
+    private final BoardConfiguration boardConfiguration;
     private final ProjectImporter importer;
     private final boolean copyFiles;
     private final MakeConfigurationBook projectDescriptor;
@@ -46,14 +48,14 @@ public abstract class ProjectConfigurationImporter {
 
     protected ProjectConfigurationImporter(ProjectImporter importer, boolean copyFiles, MakeConfigurationBook projectDescriptor, File targetProjectDir) {
         this.importer = importer;
-        this.board = importer.getBoard();
+        this.boardConfiguration = importer.getBoardConfiguration();
         this.copyFiles = copyFiles;
         this.projectDescriptor = projectDescriptor;
         this.targetProjectDir = targetProjectDir;
     }
 
-    protected Board getBoard() {
-        return board;
+    protected BoardConfiguration getBoardConfiguration() {
+        return boardConfiguration;
     }
 
     protected ProjectImporter getImporter() {
@@ -81,7 +83,7 @@ public abstract class ProjectConfigurationImporter {
         if (copyFiles) {
             includesBuilder.append(ProjectImporter.CORE_DIRECTORY_NAME);
         } else {
-            List <Path> coreDirPaths = board.getCoreDirPaths();
+            List <Path> coreDirPaths = boardConfiguration.getCoreDirPaths();
             for ( int i=0; i<coreDirPaths.size(); i++ ) {                
                 if ( i>0 ) includesBuilder.append(";");
                 includesBuilder.append( coreDirPaths.get(i) );
@@ -129,9 +131,9 @@ public abstract class ProjectConfigurationImporter {
     
     protected Set <String> getExtraOptionsC() {
         Set <String> optionSet = new LinkedHashSet<>();
-        parseOptions(optionSet, board.getValue("compiler.c.flags"));        
-        parseOptions(optionSet, board.getValue("compiler.c.extra_flags"));
-        parseOptions(optionSet, board.getValue("build.extra_flags"));
+        parseOptions(optionSet, boardConfiguration.getValue("compiler.c.flags"));        
+        parseOptions(optionSet, boardConfiguration.getValue("compiler.c.extra_flags"));
+        parseOptions(optionSet, boardConfiguration.getValue("build.extra_flags"));
         removeRedundantCompilerOptions(optionSet);
         removeIllegalCharacters(optionSet);
         return optionSet;
@@ -139,15 +141,15 @@ public abstract class ProjectConfigurationImporter {
     
     protected Set <String> getCompilerWarnings() {
         Set <String> optionSet = new LinkedHashSet<>();
-        parseOptions(optionSet, board.getValue("compiler.warning_flags.all"));
+        parseOptions(optionSet, boardConfiguration.getValue("compiler.warning_flags.all"));
         return optionSet;
     }
     
     protected Set <String> getExtraOptionsAS() {
         Set <String> optionSet = new LinkedHashSet<>();
-        parseOptions(optionSet, board.getValue("compiler.S.flags"));
-        parseOptions(optionSet, board.getValue("compiler.c.extra_flags"));
-        parseOptions(optionSet, board.getValue("build.extra_flags"));
+        parseOptions(optionSet, boardConfiguration.getValue("compiler.S.flags"));
+        parseOptions(optionSet, boardConfiguration.getValue("compiler.c.extra_flags"));
+        parseOptions(optionSet, boardConfiguration.getValue("build.extra_flags"));
         removeRedundantCompilerOptions(optionSet);
         removeIllegalCharacters(optionSet);
         return optionSet;
@@ -155,9 +157,9 @@ public abstract class ProjectConfigurationImporter {
     
     protected Set <String> getExtraOptionsCPP() {
         Set <String> optionSet = new LinkedHashSet<>();
-        parseOptions(optionSet, board.getValue("compiler.cpp.flags"));
-        parseOptions(optionSet, board.getValue("compiler.cpp.extra_flags"));        
-        parseOptions(optionSet, board.getValue("build.extra_flags"));
+        parseOptions(optionSet, boardConfiguration.getValue("compiler.cpp.flags"));
+        parseOptions(optionSet, boardConfiguration.getValue("compiler.cpp.extra_flags"));        
+        parseOptions(optionSet, boardConfiguration.getValue("build.extra_flags"));
         removeRedundantCompilerOptions(optionSet);        
         removeIllegalCharacters(optionSet);
         optionSet.add("-std=gnu++11");
@@ -171,20 +173,19 @@ public abstract class ProjectConfigurationImporter {
     }
     
     protected Set <String> getExtraOptionsLD( boolean debug, boolean coreCopied ) {
-        return new HashSet<>();
+        Set <String> optionSet = new LinkedHashSet<>();
+        Map <String,String> runtime = new HashMap<>();
+        runtime.put("build.path", ".");
+        parseOptions(optionSet, boardConfiguration.getValue("compiler.c.elf.flags", runtime));
+        return optionSet;
     }
     
     protected String getCompilerMacros() {
         return new StringBuilder()
-            .append("F_CPU=").append( board.getValue("build.f_cpu").orElse("") ).append(";")
-            .append("ARDUINO=").append( board.getValue("runtime.ide.version").orElse("") ).append(";")
-            .append( board.getValue("build.board").orElse("") ).append(";")
-            // TODO: Verify whether the two MPxxx parameters are really required
-//            .append("MPIDEVER=16777998" ).append(";")
-//            .append("MPIDE=150" ).append(";")
-            .append("IDE=Arduino" ).append(";")
-            .append("XPRJ_default=default" ).append(";")
-            .append("__CTYPE_NEWLIB").toString();
+            .append("F_CPU=").append( boardConfiguration.getValue("build.f_cpu").orElse("") ).append(";")
+            .append("ARDUINO=").append( boardConfiguration.getValue("runtime.ide.version").orElse("") ).append(";")
+            .append( boardConfiguration.getValue("build.board").orElse("") ).append(";")
+            .append("IDE=Arduino" ).append(";").toString();
     }
     
     protected void removeRedundantCompilerOptions( Set <String> optionSet ) {
@@ -234,7 +235,7 @@ public abstract class ProjectConfigurationImporter {
     }
     
     protected String getMCU() {
-        return board.getValue("build.mcu").orElse("");
+        return boardConfiguration.getValue("build.mcu").orElse("");
     }
     
     

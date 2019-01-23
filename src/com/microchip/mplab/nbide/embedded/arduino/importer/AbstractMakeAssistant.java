@@ -63,7 +63,7 @@ public abstract class AbstractMakeAssistant {
 
     public abstract Path getBuildDirPath();
 
-    public abstract Board getBoard();
+    public abstract BoardConfiguration getBoardConfiguration();
 
     public abstract String getMakefileName();
 
@@ -94,19 +94,19 @@ public abstract class AbstractMakeAssistant {
         if ( getBuildDirPath() == null ) throw new IllegalStateException("Build Directory Path cannot be null!");
         if ( getMakefileName() == null ) throw new IllegalStateException("Makefile Name cannot be null!");
         if ( getToolFinder() == null ) throw new IllegalStateException("Tool Finder cannot be null!");
-        if ( getBoard() == null ) throw new IllegalStateException("Board cannot be null!");
+        if ( getBoardConfiguration()== null ) throw new IllegalStateException("Board Configuration cannot be null!");
         if ( getTargetName() == null ) throw new IllegalStateException("Target Name cannot be null!");        
     }
     
     protected void generateMakefile() throws IOException {
-        Board board = getBoard();
+        BoardConfiguration boardConfiguration = getBoardConfiguration();
         
         makefileContents = new ArrayList<>();
         objectFilenames = new ArrayList<>();
         makefileContents.add( getTargetName() + ":" );
         
         // Add variant and core source file paths:
-        List <Path> allSourceFiles = getSourceFilePaths(board);
+        List <Path> allSourceFiles = getSourceFilePaths(boardConfiguration);
         
         Map <String,String> runtimeData = new HashMap<>();
         runtimeData.put( getToolsPathKey(), getToolchainPath().toString() );
@@ -120,14 +120,14 @@ public abstract class AbstractMakeAssistant {
             
             runtimeData.put("source_file", mapSourceFilePath(sourceFilePath));
             runtimeData.put("object_file", targetFileName);
-            runtimeData.put("includes", buildIncludesSection(board) );
+            runtimeData.put("includes", buildIncludesSection(boardConfiguration) );
             
             if (sourceFileName.endsWith(".S")) {
-                command.append( board.getValue("recipe.S.o.pattern", runtimeData).get() );
+                command.append( boardConfiguration.getValue("recipe.S.o.pattern", runtimeData).get() );
             } else if (sourceFileName.endsWith(".c")) {
-                command.append( board.getValue("recipe.c.o.pattern", runtimeData).get() );
+                command.append( boardConfiguration.getValue("recipe.c.o.pattern", runtimeData).get() );
             } else if (sourceFileName.endsWith(".cpp")) {
-                command.append( board.getValue("recipe.cpp.o.pattern", runtimeData).get() );
+                command.append( boardConfiguration.getValue("recipe.cpp.o.pattern", runtimeData).get() );
             }
             makefileContents.add( command.toString() );
         });                
@@ -138,7 +138,7 @@ public abstract class AbstractMakeAssistant {
     }
     
     protected String getToolsPathKey() {
-        com.microchip.mplab.nbide.embedded.arduino.importer.Platform platform = getBoard().getPlatform();
+        Platform platform = getBoardConfiguration().getPlatform();
         if ( platform.isSAMD()) {
             return "runtime.tools.arm-none-eabi-gcc.path";
         } else if ( platform.isPIC32() ) {
@@ -148,10 +148,10 @@ public abstract class AbstractMakeAssistant {
         }
     }
     
-    protected String buildIncludesSection( Board board ) {
+    protected String buildIncludesSection( BoardConfiguration boardConfiguration ) {
         StringBuilder ret = new StringBuilder();
-        Path variantPath = board.getVariantPath();
-        Path corePath = board.getCoreDirectoryPath();
+        Path variantPath = boardConfiguration.getVariantPath();
+        Path corePath = boardConfiguration.getCoreDirectoryPath();
         if (variantPath != null && !variantPath.equals(corePath)) {
             ret.append(" \"-I").append(variantPath).append("\"");
         }
@@ -170,8 +170,8 @@ public abstract class AbstractMakeAssistant {
         if ( result != 0 ) throw new NativeProcessFailureException( "Compilation failed!" );
     }
         
-    protected List<Path> getSourceFilePaths( Board board ) throws IOException {
-        return board.getCoreFilePaths();
+    protected List<Path> getSourceFilePaths( BoardConfiguration boardConfiguration ) throws IOException {
+        return boardConfiguration.getCoreFilePaths();
     }
 
     protected List<String> parseCompilerMacros(String macros) {

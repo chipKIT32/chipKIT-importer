@@ -1,5 +1,7 @@
 package com.microchip.mplab.nbide.embedded.arduino.utils;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -43,28 +45,30 @@ public class CopyingFileVisitorWithHeaderDereference extends CopyingFileVisitor 
         }
     }
     
-    private void appendLinesFromFile( List<String> lines, Path filePath ) throws IOException {
-        List<String> fileLines = Files.readAllLines(filePath);
-        for ( int i=0; i<fileLines.size(); i++ ) {
-            String line = fileLines.get(i).trim();
-            if ( line.startsWith("#include ") ) {
-                String[] tokens = line.split("\\s+");
-                if ( tokens.length > 1 ) {
-                    String includeString = tokens[1];
-                    if ( includeString.startsWith("\"..") ) {
-                        includeString = includeString.substring(1, includeString.length()-1);
-                        Path includePath = Paths.get(source.toString(), includeString).normalize();
-                        lines.add( "/*** Including contents of: " + includeString + " ***/ " );
-                        appendLinesFromFile( lines, includePath );
-                        lines.add( "/*** End of: " + includeString + " ***/" );
+    private void appendLinesFromFile( final List<String> lines, final Path filePath ) throws IOException {
+        try ( BufferedReader r = new BufferedReader( new FileReader(filePath.toFile()) ) ) {
+            String line = null;
+            while ( (line = r.readLine()) != null ) {
+                line = line.trim();
+                if ( line.startsWith("#include ") ) {
+                    String[] tokens = line.split("\\s+");
+                    if ( tokens.length > 1 ) {
+                        String includeString = tokens[1];
+                        if ( includeString.startsWith("\"..") ) {
+                            includeString = includeString.substring(1, includeString.length()-1);
+                            Path includePath = Paths.get(source.toString(), includeString).normalize();
+                            lines.add( "/*** Including contents of: " + includeString + " ***/ " );
+                            appendLinesFromFile( lines, includePath );
+                            lines.add( "/*** End of: " + includeString + " ***/" );
+                        } else {
+                            lines.add( line );
+                        }
                     } else {
                         lines.add( line );
                     }
                 } else {
                     lines.add( line );
                 }
-            } else {
-                lines.add( line );
             }
         }
     }
