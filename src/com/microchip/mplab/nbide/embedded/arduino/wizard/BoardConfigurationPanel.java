@@ -21,10 +21,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -33,7 +33,7 @@ import org.openide.util.NbBundle;
 class BoardConfigurationPanel extends JPanel {
 
     private BoardConfigurationStep control;
-    private final Map<BoardOption,JComboBox<String>> comboBoxLookup;
+    private final Map<BoardOption,JComboBox<OptionValueItem>> comboBoxLookup;
 
     BoardConfigurationPanel(BoardConfigurationStep control) {
         this.control = control;
@@ -62,7 +62,7 @@ class BoardConfigurationPanel extends JPanel {
             p0.add(createLabel(option.getName()), c);
 
             c.gridx = 1;
-            JComboBox<String> comboBox = createComboBox(board.getAvailableOptionValues(option));
+            JComboBox<OptionValueItem> comboBox = createComboBox(board.getAvailableOptionValuesAndLabels(option));
             comboBoxLookup.put(option,comboBox);
             p0.add(comboBox, c);
         }
@@ -76,19 +76,40 @@ class BoardConfigurationPanel extends JPanel {
     }
     
     public String getSelectedOptionValue( BoardOption option ) {
-        return comboBoxLookup.get(option).getSelectedItem().toString();
+        OptionValueItem item = (OptionValueItem) comboBoxLookup.get(option).getSelectedItem();
+        return item.optionValue;
     }
 
     private JLabel createLabel(String text) {
         return new JLabel(text + ":");
     }
 
-    private JComboBox<String> createComboBox(Collection<String> values) {
-        JComboBox<String> comboBox = new JComboBox<>(values.toArray(new String[values.size()]));
+    private JComboBox<OptionValueItem> createComboBox(Map<String,String> valuesAndLabels) {
+        List<OptionValueItem> items = valuesAndLabels.entrySet().stream().map( e -> {
+            return new OptionValueItem(e.getKey(), e.getValue());
+        }).collect( Collectors.toList() );
+        JComboBox<OptionValueItem> comboBox = new JComboBox<>(items.toArray(new OptionValueItem[items.size()]));
         comboBox.addItemListener((e) -> {            
             control.optionValueItemStateChanged(e);
         });
         return comboBox;
+    }
+    
+    private static final class OptionValueItem {
+        String optionValue;
+        String optionLabel;
+
+        public OptionValueItem(String optionValue, String optionLabel) {
+            this.optionValue = optionValue;
+            this.optionLabel = optionLabel;
+        }
+
+        @Override
+        public String toString() {
+            return optionLabel;
+        }
+        
+        
     }
 
 }

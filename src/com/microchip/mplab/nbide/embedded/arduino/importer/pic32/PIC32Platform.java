@@ -15,8 +15,6 @@ public class PIC32Platform extends Platform {
         putValue("compiler.objcopy.cmd", "xc32-objcopy");
         putValue("compiler.elf2hex.cmd", "xc32-bin2hex");
         putValue("compiler.size.cmd", "xc32-size");
-        
-        putValue("build.extra_flags", getValue("build.extra_flags").orElse("") + " -mnewlib-libc");
         data.entrySet().forEach( e -> e.setValue( e.getValue().replaceAll(" -O2 ", " -O1 ") ) );
     }
     

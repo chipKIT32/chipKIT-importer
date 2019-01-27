@@ -31,8 +31,8 @@ import org.openide.util.Exceptions;
 
 public class MPLABDeviceAssistant {
 
-    private String deviceName;
-    private LanguageToolchain languageToolchain;
+    private String deviceName = "";
+    private LanguageToolchain languageToolchain = null;
     
     public void storeSettings(WizardDescriptor settings) {
         WizardProjectConfiguration.storeDeviceHeaderPlugin(settings, deviceName);
@@ -56,8 +56,13 @@ public class MPLABDeviceAssistant {
     }
     
     public void updateDeviceAndToolchain( BoardConfiguration boardConfiguration ) {
-        deviceName = boardConfiguration.getValue("build.mcu").flatMap( this::findMPLABDeviceNameForMCU ).orElse("");
-        languageToolchain = findMatchingLanguageToolchain(deviceName).orElse(null);
+        if ( boardConfiguration != null ) {
+            deviceName = boardConfiguration.getValue("build.mcu").flatMap( this::findMPLABDeviceNameForMCU ).orElse("");
+            languageToolchain = findMatchingLanguageToolchain(deviceName).orElse(null);
+        } else {
+            deviceName = "";
+            languageToolchain = null;
+        }
     }
     
     

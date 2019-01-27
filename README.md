@@ -30,6 +30,10 @@ After adding the platform to your development environment, the last thing to do 
 At this point, you should be able to build the Plugin just like any other project in NetBeans (Select _Run_ -> _Build Project_ in the main menu or click the button with a hammer icon in the toolbar).
 
 ## Changelog:
+Version 1.2.1
+- Added a board configuration page to the import wizard
+- Improved board parsing logic
+
 Version 1.1.4
 - Major overhaul of the Arduino board files parser
 - Adapted to MPLAB X IDE 5.x

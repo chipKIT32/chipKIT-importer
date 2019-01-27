@@ -662,9 +662,14 @@ public class ProjectSetupStep implements WizardDescriptor.Panel<WizardDescriptor
     private void updateBoard() {
         String boardName = readSelectedValueFromComboBox(view.boardCombo);
         String boardId = boardIdLookup.get(boardName);
-        board = currentPlatform.getBoard(boardId).orElseThrow( () -> new RuntimeException("Failed to find a board with id: \""+boardId+"\""));
-        if ( !board.hasOptions() ) {
-            deviceAssistant.updateDeviceAndToolchain( new BoardConfiguration(board) );
+        if ( boardId != null ) {
+            board = currentPlatform.getBoard(boardId).orElseThrow( () -> new RuntimeException("Failed to find a board with id: \""+boardId+"\""));
+            if ( !board.hasOptions() ) {
+                deviceAssistant.updateDeviceAndToolchain( new BoardConfiguration(board) );
+            }
+        } else {
+            board = null;
+            deviceAssistant.updateDeviceAndToolchain(null);
         }
     }
     

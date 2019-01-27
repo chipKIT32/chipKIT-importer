@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -130,12 +132,19 @@ public final class Board extends ArduinoDataSource {
         return null;
     }
 
-    public Set<BoardOption> getOptions() {
+    public Collection<BoardOption> getOptions() {
         return options.keySet();
     }
     
-    public Set<String> getAvailableOptionValues( BoardOption option ) {
-        return options.get(option);
+    public Map<String,String> getAvailableOptionValuesAndLabels( BoardOption option ) {
+        Map <String,String> ret = new HashMap<>();        
+        options.get(option).forEach( value -> {             
+            String dataKey = option.getId() + "." + value;
+            getValue(dataKey).ifPresent( label -> {
+                ret.put( value, label );
+            });
+        });
+        return ret;
     }
     
     public boolean hasOptions() {

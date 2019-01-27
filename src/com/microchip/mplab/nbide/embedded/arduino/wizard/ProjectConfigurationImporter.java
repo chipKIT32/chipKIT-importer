@@ -17,7 +17,6 @@ package com.microchip.mplab.nbide.embedded.arduino.wizard;
 
 import com.microchip.mplab.nbide.embedded.api.LanguageToolchainMeta;
 import com.microchip.mplab.nbide.embedded.arduino.importer.ProjectImporter;
-import com.microchip.mplab.nbide.embedded.arduino.importer.Board;
 import com.microchip.mplab.nbide.embedded.arduino.importer.BoardConfiguration;
 import com.microchip.mplab.nbide.embedded.makeproject.api.configurations.MakeConfiguration;
 import com.microchip.mplab.nbide.embedded.makeproject.api.configurations.MakeConfigurationBook;
@@ -28,11 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -168,15 +165,13 @@ public abstract class ProjectConfigurationImporter {
     
     protected Set <String> getProcessorOptions() {
         Set <String> optionSet = new LinkedHashSet<>();
-        optionSet.add(" -mmcu=" + getMCU() );
+        optionSet.add("-mmcu=" + getMCU() );
         return optionSet;
     }
     
     protected Set <String> getExtraOptionsLD( boolean debug, boolean coreCopied ) {
         Set <String> optionSet = new LinkedHashSet<>();
-        Map <String,String> runtime = new HashMap<>();
-        runtime.put("build.path", ".");
-        parseOptions(optionSet, boardConfiguration.getValue("compiler.c.elf.flags", runtime));
+        parseOptions(optionSet, boardConfiguration.getValue("compiler.c.elf.flags"));
         return optionSet;
     }
     

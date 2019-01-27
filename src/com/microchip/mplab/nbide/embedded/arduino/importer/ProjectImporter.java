@@ -158,7 +158,6 @@ public class ProjectImporter {
         Path variantDirPath = copyingFiles ? getTargetCoreDirectoryPath() : sourceVariantDirPath;
         Path ldScriptDirPath = customLdScriptBoard ? getTargetCoreDirectoryPath() : null;
         
-        // TODO: Move this section somewhere else!
         boardConfiguration.getPlatform().putValue("runtime.ide.version", "10802");
         boardConfiguration.putValue("build.path", "\""+targetProjectDirectoryPath.toString()+"\"" );
         boardConfiguration.putValue("build.core.path", coreDirPath.toString() );
