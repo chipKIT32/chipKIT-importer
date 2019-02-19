@@ -32,7 +32,7 @@ public final class BoardConfiguration extends ArduinoDataSource {
     }
 
     public BoardConfiguration(Board board, Map<BoardOption, String> boardOptionsToValuesLookup) {
-        super(board);  // Should never use the internal data lookup but always fetch data from the board
+        super(board); 
         assert board != null;
         this.board = board;
         this.boardOptionsToValuesLookup = boardOptionsToValuesLookup;

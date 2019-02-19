@@ -10,8 +10,8 @@ Note that the wizard can import a project in two different ways:
 2) Retaining links to external source code and libraries that exist in the chipKIT/Arduino environment,
 
 The chipKIT Import Plugin requires the following software to be installed:  
-- MPLAB X v5.05 or later
-- MPLAB XC32 C/C++ compiler v1.43 or later
+- MPLAB X v5.10 or later
+- MPLAB XC32 C/C++ compiler v2.1 or later
 - Arduino IDE v1.8.5 or later
 - chipKIT-core v2.0 or later
 
@@ -30,6 +30,11 @@ After adding the platform to your development environment, the last thing to do 
 At this point, you should be able to build the Plugin just like any other project in NetBeans (Select _Run_ -> _Build Project_ in the main menu or click the button with a hammer icon in the toolbar).
 
 ## Changelog:
+Version 1.2.2
+- Changed the minimum required XC32 version to 2.1
+- Changed the minimum required Arduino version to 1.8.5
+- Fixed some minor bugs
+
 Version 1.2.1
 - Added a board configuration page to the import wizard
 - Improved board parsing logic

@@ -17,8 +17,8 @@ package com.microchip.mplab.nbide.embedded.arduino.importer;
 
 public final class Requirements {
     
-    public static final String MINIMUM_XC_TOOLCHAIN_VERSION = "1.43";
-    public static final String MINIMUM_ARDUINO_VERSION = "1.8.0";
+    public static final String MINIMUM_XC_TOOLCHAIN_VERSION = "2.1";
+    public static final String MINIMUM_ARDUINO_VERSION = "1.8.5";
     
     private Requirements() {}
     

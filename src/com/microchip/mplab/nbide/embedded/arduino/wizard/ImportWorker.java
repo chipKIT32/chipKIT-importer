@@ -166,7 +166,7 @@ public class ImportWorker extends SwingWorker<Set<FileObject>, String> {
 
         MakeConfiguration[] confs;
         MakeConfiguration defaultConf = createDefaultMakefileConfiguration(projectDirectory);
-        if (ProjectImporter.CUSTOM_LD_SCRIPT_BOARD_IDS.contains(board)) {
+        if (ProjectImporter.CUSTOM_LD_SCRIPT_BOARD_IDS.contains(board.getBoardId())) {
             MakeConfiguration debugConf = createDebugMakefileConfiguration(projectDirectory);
             confs = new MakeConfiguration[]{defaultConf, debugConf};
         } else {
