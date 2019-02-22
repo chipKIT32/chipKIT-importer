@@ -30,6 +30,9 @@ After adding the platform to your development environment, the last thing to do 
 At this point, you should be able to build the Plugin just like any other project in NetBeans (Select _Run_ -> _Build Project_ in the main menu or click the button with a hammer icon in the toolbar).
 
 ## Changelog:
+Version 1.2.3
+- Fixed a bug with toolchain selection
+
 Version 1.2.2
 - Changed the minimum required XC32 version to 2.1
 - Changed the minimum required Arduino version to 1.8.5

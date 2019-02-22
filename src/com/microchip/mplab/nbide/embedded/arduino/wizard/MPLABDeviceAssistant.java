@@ -17,13 +17,17 @@ package com.microchip.mplab.nbide.embedded.arduino.wizard;
 
 import com.microchip.crownking.mplabinfo.DeviceSupport;
 import com.microchip.crownking.mplabinfo.DeviceSupportException;
+import com.microchip.crownking.opt.Version;
 import com.microchip.mplab.nbide.embedded.api.LanguageTool;
 import com.microchip.mplab.nbide.embedded.api.LanguageToolchain;
 import com.microchip.mplab.nbide.embedded.api.LanguageToolchainManager;
 import com.microchip.mplab.nbide.embedded.api.LanguageToolchainMeta;
 import com.microchip.mplab.nbide.embedded.arduino.importer.BoardConfiguration;
+import static com.microchip.mplab.nbide.embedded.arduino.importer.Requirements.MINIMUM_XC_TOOLCHAIN_VERSION;
 import static com.microchip.mplab.nbide.embedded.makeproject.api.wizards.WizardProperty.LANGUAGE_TOOL_META_ID;
 import com.microchip.mplab.nbide.embedded.makeproject.ui.wizards.WizardProjectConfiguration;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 import org.openide.WizardDescriptor;
@@ -81,14 +85,28 @@ public class MPLABDeviceAssistant {
     
     private Optional <LanguageToolchain> findMatchingLanguageToolchain( String device ) {
         if ( device != null ) {
+            Version minimumToolchainVersion = new Version(MINIMUM_XC_TOOLCHAIN_VERSION);
+            
             return LanguageToolchainManager.getDefault().getToolchains()
-                .stream()
+                .stream()                
 //                .peek( tc -> System.out.println( tc.getDirectory() + " : " + tc.getMeta().getSupportedDevices() ) )
                 .filter(tc -> tc.getSupport(device).isSupported())
                 .filter(tc -> tc.getTool(LanguageTool.CCCompiler) != null)
-                .findAny();
+                .filter(tc -> minimumToolchainVersion.compareTo(getVersion(tc)) <= 0)
+                .max( (LanguageToolchain lt1, LanguageToolchain lt2) -> getVersion(lt1).compareTo(getVersion(lt2)) );
         } else {
             return Optional.empty();
+        }
+    }
+    
+    private Version getVersion(LanguageToolchain tc) {
+        Path p = Paths.get(tc.getDirectory());
+        Path versionElement = p.getName(p.getNameCount() - 2);
+        String versionString = versionElement.toString();
+        if (versionString.startsWith("v")) {
+            return new Version(versionString.substring(1));
+        } else {
+            return new Version(versionString);
         }
     }
     
