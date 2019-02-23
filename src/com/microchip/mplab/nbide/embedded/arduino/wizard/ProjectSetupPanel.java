@@ -126,6 +126,11 @@ class ProjectSetupPanel extends JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(copyDependenciesCheckBox, org.openide.util.NbBundle.getMessage(ProjectSetupPanel.class, "ProjectSetupPanel.copyDependenciesCheckBox.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(overwriteCheckBox, org.openide.util.NbBundle.getMessage(ProjectSetupPanel.class, "ProjectSetupPanel.overwriteCheckBox.text")); // NOI18N
+        overwriteCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                overwriteCheckBoxActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -232,6 +237,10 @@ class ProjectSetupPanel extends JPanel {
     private void boardComboItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_boardComboItemStateChanged
         control.boardComboItemStateChanged(evt);
     }//GEN-LAST:event_boardComboItemStateChanged
+
+    private void overwriteCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overwriteCheckBoxActionPerformed
+        control.overwriteCheckBoxActionPerformed(evt);
+    }//GEN-LAST:event_overwriteCheckBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected javax.swing.JComboBox<String> boardCombo;

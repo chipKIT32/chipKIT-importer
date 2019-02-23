@@ -30,11 +30,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.logging.Logger;
 import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 
 public class MPLABDeviceAssistant {
 
+    private static final Logger LOGGER = Logger.getLogger(MPLABDeviceAssistant.class.getName());
+    
     private String deviceName = "";
     private LanguageToolchain languageToolchain = null;
     
@@ -63,6 +66,7 @@ public class MPLABDeviceAssistant {
         if ( boardConfiguration != null ) {
             deviceName = boardConfiguration.getValue("build.mcu").flatMap( this::findMPLABDeviceNameForMCU ).orElse("");
             languageToolchain = findMatchingLanguageToolchain(deviceName).orElse(null);
+            LOGGER.info("Selected toolchain: " + languageToolchain);
         } else {
             deviceName = "";
             languageToolchain = null;
@@ -87,11 +91,14 @@ public class MPLABDeviceAssistant {
         if ( device != null ) {
             Version minimumToolchainVersion = new Version(MINIMUM_XC_TOOLCHAIN_VERSION);
             
+            LOGGER.info("Minimum XC32 version is " + minimumToolchainVersion);
+            
             return LanguageToolchainManager.getDefault().getToolchains()
                 .stream()                
-//                .peek( tc -> System.out.println( tc.getDirectory() + " : " + tc.getMeta().getSupportedDevices() ) )
+                .peek( tc -> LOGGER.info(tc.getDirectory() + " : " + tc.getMeta().getSupportedDevices() ) )
                 .filter(tc -> tc.getSupport(device).isSupported())
                 .filter(tc -> tc.getTool(LanguageTool.CCCompiler) != null)
+                .peek(tc -> LOGGER.info( "Toolchain candidate: " + tc ) )
                 .filter(tc -> minimumToolchainVersion.compareTo(getVersion(tc)) <= 0)
                 .max( (LanguageToolchain lt1, LanguageToolchain lt2) -> getVersion(lt1).compareTo(getVersion(lt2)) );
         } else {
